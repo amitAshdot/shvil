@@ -1,1 +1,35 @@
 node_modules/
+
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# dependencies
+client/node_modules
+client/package-lock.json
+client/.pnp
+# production
+client/build
+
+# misc
+client/.DS_Store
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+client/.env
+client/.env.development
+client/.env.test
+client/.env.production
+
+# debug
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+
+node_modules/
+config/production.json
+config/default.json
+client/build
+client/.eslintcache

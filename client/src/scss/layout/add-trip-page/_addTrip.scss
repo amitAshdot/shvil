@@ -1,0 +1,47 @@
+.add-trip {
+    &-container {
+        display: flex;
+        width: 100%;
+        height: 96vh;
+
+        form {
+            display: flex;
+            width: 70vw;
+            height: 100vh;
+            padding: 2rem;
+            justify-content: center;
+            margin: auto;
+
+            .right {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                width: 55%;
+            }
+
+            .left {
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                height: 80%;
+                width: 40%;
+                // padding-top: 10%;
+                border: 1px dashed black;
+
+                .text {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align-last: center;
+                    height: 20%;
+                    justify-content: space-evenly;
+                }
+            }
+        }
+    }
+
+
+}

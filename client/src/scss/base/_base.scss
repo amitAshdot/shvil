@@ -1,0 +1,95 @@
+//  Reset ALL style for normalize ///
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  // box-sizing: inherit;
+  direction: rtl;
+  overflow-x: hidden;
+  cursor: default;
+  // overflow: auto;
+}
+
+*:not(html) {
+  overflow: hidden;
+}
+
+html {
+  position: relative;
+  scroll-behavior: smooth;
+
+  // font-size: 20px;
+  // font-size: 0.1111vw;
+  min-height: 0vw;
+  // max-width: 1920px;
+  //so now rem = 10px -> easy to calculate margin/paddin/etc...
+  // font-size: 62.5%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @include respond(big-desktop-max) {
+    // font-size: 121.8%; // 1rem = 19.5px, 19.5 / 16 = 75%
+    font-size: 1vw;
+
+    // font-size: calc(0.558036vw + 9.28571px);
+  }
+
+  @include respond(big-desktop-min) {
+    font-size: 19px;
+    // font-size: 121.8%; // 1rem = 19.5px, 19.5 / 16 = 75%
+  }
+
+  //  @include respond(small-desktop) {
+  //    font-size: 121.8%; // 1rem = 19.5px, 19.5 / 16 = 75%
+  //  }
+
+
+  // @include respond(mini-desktop) {
+  //   // font-size: 56.25%; // 1rem = 9px, 9 / 16 = 56.25%
+  //   font-size: calc(0.1111vw + 3.9px);
+  // }
+
+  // @include respond(tab-land) {
+  //   // font-size: 56.25%; // 1rem = 9px, 9 / 16 = 56.25%
+  //   font-size: calc(0.722vw + 3.9px);
+  // }
+
+  // @include respond(tab-port) {
+  //   // font-size: 50%; // 1rem = 8px, 8 / 16 = 50%
+  //   //font-size: 16px; // 1rem = 8px, 8 / 16 = 50%
+  //   font-size: calc(1.79vw + 10.27px);
+
+  // }
+
+  //no need since both phone and tablet-prt 50%
+  // @include respond(phone) {
+  //     font-size: 43.75%;
+  // }
+}
+
+body {
+  /* set the box size in all elements to border-box thanks to *{} */
+  position: relative;
+  box-sizing: border-box;
+  max-width: 1920px;
+  margin-inline: auto;
+  display: flex;
+  // background-image: url(../images/basad-web.webp);
+  // background-size: cover;
+  // background-position: center center;
+  // background-repeat: no-repeat;
+
+  @include respond(tab-port) {
+    // padding: 0;
+    flex-direction: column;
+  }
+}
+
+::selection {
+  background-color: $color-primary-light;
+  color: $color-white;
+}

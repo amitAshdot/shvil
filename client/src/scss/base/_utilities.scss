@@ -1,0 +1,33 @@
+.u-hidden {
+  display: none !important;
+
+}
+
+.u-desktop {
+  display: block;
+
+  @include respond(tab-port) {
+    display: none !important;
+
+  }
+}
+
+.u-mobile {
+  display: none !important;
+
+  @include respond(tab-port) {
+    display: block !important;
+  }
+}
+
+.show-on-scroll {
+  opacity: 0;
+  transform: translateY(50%);
+  transition: all 0.5s;
+  will-change: transform opacity;
+}
+
+.is-visible {
+  opacity: 1;
+  transform: translateY(0%);
+}

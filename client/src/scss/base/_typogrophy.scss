@@ -1,0 +1,94 @@
+@font-face {
+  font-family: 'ploni';
+  // src: url(../fonts/ploni-regular-aaa.otf);
+  font-display: swap;
+
+}
+
+@font-face {
+  font-family: 'ploni-bold';
+  // src: url(../fonts/ploni-bold-aaa.otf);
+  font-display: swap;
+
+}
+
+@font-face {
+  font-family: 'roboto';
+  src: url(https://fonts.googleapis.com/css?family=Roboto);
+  font-display: swap;
+}
+
+body {
+  font-family: 'ploni', sans-serif;
+  font-weight: 400;
+  font-size: $defaut-font-size;
+  line-height: 1.7;
+}
+
+img {
+  font-size: 1rem;
+
+  @include respond(tab-port) {
+    font-size: 3rem;
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 2.7rem;
+}
+
+h2 {
+  font-size: 1.45rem;
+}
+
+h3 {
+  // font-size: 2.31rem;
+  // line-height: 2.35rem;
+  font-size: 2.91rem;
+  line-height: 3rem;
+  letter-spacing: 0.03rem;
+
+  @include respond(tab-port) {
+    font-size: 4.1rem;
+    line-height: initial;
+    letter-spacing: 0.03rem;
+  }
+}
+
+p strong {
+  font-family: "ploni", sans-serif;
+}
+
+p {
+  font-size: 0.9rem;
+  line-height: 1rem;
+
+  @include respond(tab-port) {
+    font-size: 3rem;
+  }
+
+  a {
+    color: $color-grey-dark;
+    text-decoration-color: $color-black;
+    text-decoration-thickness: 3px;
+  }
+}
+
+a {
+  cursor: pointer;
+}
+
+.blue-text {
+  color: $color-primary;
+}
+
+.orange-text {
+  color: $color-secondary;
+}

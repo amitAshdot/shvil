@@ -1,0 +1,84 @@
+.input {
+    position: relative;
+    padding: 1rem;
+    border: none;
+    border-bottom: 2px solid $color-grey-dark-3;
+    overflow: visible;
+
+    &:focus,
+    &:active,
+    &:not([value=""]) {
+        outline: none;
+        border-bottom: 2px solid $color-primary;
+
+
+        &~label {
+            color: $color-primary;
+            position: absolute;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-right: 0rem;
+            transform: translateY(-70%);
+            transition: all 0.2s ease-in-out;
+        }
+    }
+
+    &::placeholder {
+        color: $color-grey-dark-3;
+    }
+
+    &--error {
+        border-bottom: 2px solid $error-border;
+    }
+
+    &--error::placeholder {
+        color: $error-border;
+    }
+
+    &--success {
+        border-bottom: 1px solid $color-primary;
+    }
+
+    &--success::placeholder {
+        color: $color-primary;
+    }
+
+    &--disabled {
+        border-bottom: 1px solid $color-grey-dark-3;
+        background-color: $color-grey-light-2;
+        color: $color-grey-dark-3;
+    }
+
+
+    &-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow: visible;
+    }
+
+    &~label {
+        position: absolute;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-right: 1.5rem;
+        pointer-events: none;
+        font-size: 1.3rem;
+        line-height: 1.3rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: $color-primary;
+        transition: all 0.4s ease-in-out;
+    }
+}
