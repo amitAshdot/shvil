@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react'
 import folderImage from '../../assets/img/folder.webp'
 // import Moment from 'react-moment';
 // import moment from "moment";
-
+import Dropzone from 'react-dropzone'
+import XInsideSolidCircle from '../icons/XInsideSolidCircle.js'
+import PlusInCircle from '../icons/PlusInCircle.js'
+import { useDispatch, useSelector } from 'react-redux'
+import { addFlight } from '../../store/flight/flightAction'
+import PdfTest from '../layout/PdfTest'
 const AddTrip = () => {
+
     useEffect(() => {
 
 
@@ -11,6 +17,9 @@ const AddTrip = () => {
             // cleanup
         }
     }, [])
+    const dispatch = useDispatch();
+    const flightState = useSelector(state => state.flight);
+
 
     const [tripState, setTripState] = useState({
         tripNumber: '',
@@ -20,13 +29,48 @@ const AddTrip = () => {
         msg: '',
         error: ''
     })
-    const { tripNumber, tripDate, filesNames } = tripState
+    const { tripNumber, tripDate, filesNames, files } = tripState
     //change input state
     const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
-    const handleFiles = (e) => {
-        let filesNames = [], files = e.target.files
-        Array.from(e.target.files).forEach(file => {
+    // const handleFiles = (e) => {
+    //     let filesNames = [], files = e.target.files
+    //     Array.from(e.target.files).forEach(file => {
+    //         console.log(file)
+    //         filesNames.push(file.name)
+    //     })
+    //     setTripState({
+    //         ...tripState,
+    //         filesNames,
+    //         files
+    //     })
+    // }
+    const filesToShow = filesNames.map((file, index) => {
+        return <li key={index} className="files-file">{file}</li>
+    });
+
+    const handleReset = () => {
+        setTripState({
+            tripNumber: '',
+            tripDate: '',
+            files: [],
+            filesNames: [],
+            msg: '',
+            error: ''
+        })
+    }
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        let currentTripState = { ...tripState }
+        // delete currentTripState.msg
+        dispatch(addFlight(currentTripState))
+    }
+
+    const onDrop = (files) => {
+        console.log(files);
+        debugger
+        Array.from(files).forEach(file => {
             console.log(file)
             filesNames.push(file.name)
         })
@@ -36,19 +80,11 @@ const AddTrip = () => {
             files
         })
     }
-    const filesToShow = filesNames.map((file, index) => {
-        return <li key={index} className="files-file">{file}</li>
-    });
-
-    const onSubmit = async (e) => {
-        e.preventDefault();
-        let currentTripState = { ...tripState }
-        // delete currentTripState.msg
-
-    }
-
     return (
         <div className="add-trip-container">
+            {/* {files.length > 0 && files.map((file, index) => {
+                return <PdfTest key={index} file={file} />
+            })} */}
             <form onSubmit={onSubmit}>
                 <div className="right">
                     <picture>
@@ -67,21 +103,34 @@ const AddTrip = () => {
                     {/* loop of pdf files upload */}
 
                     <input type="submit" value="Submit" />
+                    <div className="reset-files" onClick={handleReset}>איפוס</div>
 
                     <div className="files-status">
                         {filesNames.length > 0 ? <ul>{filesToShow}</ul> : null}
                     </div>
                 </div>
-                <div className="left">
-                    {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
-                    <img src="https://thumbs.dreamstime.com/b/drag-drop-symbol-concept-icon-flat-isolated-eps-illustration-minimal-modern-design-96340345.jpg" alt="img" width={150} height={150} />
-                    <div className="text">
-                        <p className='drag'>גרור לפה</p>
-                        <p className='or'>או</p>
-                        <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" />
-                    </div>
+                {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
 
-                </div>
+                <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple>
+                    {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
+                        <div {...getRootProps()} className="left">
+                            {!isDragActive && <img src="https://thumbs.dreamstime.com/b/drag-drop-symbol-concept-icon-flat-isolated-eps-illustration-minimal-modern-design-96340345.jpg" alt="img" width={150} height={150} />}
+                            {isDragActive && !isDragReject && <PlusInCircle className={'upload-form'} />}
+                            {isDragReject && <XInsideSolidCircle className={'upload-form'} />}
+                            <input {...getInputProps()} />
+                            {!isDragActive &&
+                                <div className="text">
+                                    <p className='drag'>גרור לפה</p>
+                                    <p className='or'>או</p>
+                                    <p className='click'>לחץ להעלאה</p>
+                                    {/* <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" /> */}
+                                </div>}
+                            {isDragActive && !isDragReject && "אפשר לשחרר כאן"}
+                            {isDragReject && "טעות בקובץ"}
+                        </div>
+                    )}
+                </Dropzone>
+
                 {tripState.msg ? <p>{tripState.msg}</p> : null}
                 {tripState.error ? <p>{tripState.error}</p> : null}
             </form>

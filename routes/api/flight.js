@@ -50,7 +50,7 @@ router.post('/',
     [
         auth,
         [
-            check('flightNumber', 'flightNumber is required').not().isEmpty(),
+            check(' ', 'flightNumber is required').not().isEmpty(),
             check('pdfFiles', 'Please add PDF files').not().isEmpty(),
             check('flightDate', 'Please enter flight date').not().isEmpty()
         ]
@@ -96,7 +96,6 @@ router.post('/',
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
     const { flightNumber, pdfFiles, flightDate, passengers } = req.body;
-
     // Build flight object
     const flightFields = {};
     flightFields.user = req.user.id;
@@ -107,6 +106,7 @@ router.put('/:id', auth, async (req, res) => {
 
     try {
         let flight = await Flight.findById(req.params.id);
+        console.log(req.params.id)
         if (!flight) return res.status(404).json({ msg: 'Flight not found' });
         if (flight.user.toString() !== req.user.id) {
             return res.status(401).json({ msg: 'User not authorized' });

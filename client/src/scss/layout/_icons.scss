@@ -1,0 +1,15 @@
+.x-inside-solid-circle {
+    color: $error-border;
+
+    &.upload-form {
+        width: 10%;
+    }
+}
+
+.plus-in-circle {
+    color: $color-success;
+
+    &.upload-form {
+        width: 10%;
+    }
+}
