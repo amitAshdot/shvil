@@ -11,8 +11,8 @@ const initialState = {
     loading: false,
     error: {},
     expire_at: {},
-    flightNumber: "MAKXOEQQZ",
-    pdfFiles: ["efrxvb_1", "efrxvb_2", "efrxvb_4", "efrxvb_3"],
+    tripNumber: "MAKXOEQQZ",
+    filesNames: ["efrxvb_1", "efrxvb_2", "efrxvb_4", "efrxvb_3"],
     passengers: [
         {
             no: 0,
@@ -39,7 +39,7 @@ const initialState = {
             related: -1
         }
     ],
-    flightDate: "2022-12-12"
+    tripDate: "2022-12-12"
 }
 
 export default function flightReducer(state = initialState, action) {

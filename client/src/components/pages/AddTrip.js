@@ -62,24 +62,87 @@ const AddTrip = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+
+
+
         let currentTripState = { ...tripState }
         // delete currentTripState.msg
-        dispatch(addFlight(currentTripState))
+        // dispatch(addFlight(currentTripState))
     }
 
     const onDrop = (files) => {
+        // debugger
         console.log(files);
-        debugger
         Array.from(files).forEach(file => {
             console.log(file)
             filesNames.push(file.name)
         })
+
+        const filesResults = files.map(file => {
+            var reader = new FileReader();
+            // reader.readAsDataURL(file);
+            reader.onload = (function (f) {
+                return function (e) {
+                    // Here you can use `e.target.result` or `this.result`
+                    // and `f.name`.
+                    console.log('e.target.result ', e.target.result)
+                    debugger
+
+                    var reName = /Passenger:(.*)\n/gm;
+                    var name = "";
+                    let match = reName.exec(e.target.result);
+                    if (match != null) {
+
+                        name = match[1];
+                        name = name.replace(/([A-Z])/g, ' $1').trim();
+                        // peopleObjectArr.push({ name: name, isPaid: false, isTicketSent: false, ticketName: file });
+
+                        console.log({ name: name, isPaid: false, isTicketSent: false, ticketName: file })
+                        // return { name: name, isPaid: false, isTicketSent: false, ticketName: file }
+                    }
+
+
+                    // reader.readAsText(file);
+
+                };
+
+            })(file);
+            reader.readAsText(file, 'UTF-8');
+
+            reader.onerror = function () {
+                alert(reader.error);
+            };
+
+
+            console.log('reader ', reader)
+            console.log('reader.result ', reader.result)
+            return reader.result
+        })
+        console.log('filesResults ', filesResults)
+        // var reader = new FileReader();
+
+        // reader.onload = (function (f) {
+        //     return function (e) {
+        //         // Here you can use `e.target.result` or `this.result`
+        //         // and `f.name`.
+        //         console.log('e.target.result ', e.target.result)
+        //     };
+        // })(files);
+        // reader.readAsText(files[0]);
+        // console.log('reader ', reader)
+        // console.log('reader.result ', reader.result)
+        // console.log('reader.readAsText(files[0]); ', reader.readAsText(files[0]));
+
+        // console.log('this is reader ', reader)
         setTripState({
             ...tripState,
             filesNames,
             files
         })
     }
+
+
+
     return (
         <div className="add-trip-container">
             {/* {files.length > 0 && files.map((file, index) => {

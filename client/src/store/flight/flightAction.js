@@ -48,7 +48,7 @@ export const addFlight = formData => async dispatch => {
         }
     };
     try {
-        debugger
+        console.log(formData);
         const res = await axios.post('/api/flight', formData, config);
         dispatch({
             type: ADD_FLIGHT,

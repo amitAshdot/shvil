@@ -18,7 +18,7 @@ const Login = () => {
     });
 
     const onChange = e => {
-        // debugger
+        // 
         e.target.setAttribute('value', e.target.value);
         setAuth({ ...auth, [e.target.name]: e.target.value });
     }

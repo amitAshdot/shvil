@@ -50,9 +50,9 @@ router.post('/',
     [
         auth,
         [
-            check(' ', 'flightNumber is required').not().isEmpty(),
-            check('pdfFiles', 'Please add PDF files').not().isEmpty(),
-            check('flightDate', 'Please enter flight date').not().isEmpty()
+            check('tripNumber', 'tripNumber is required').not().isEmpty(),
+            check('filesNames', 'Please add PDF files').not().isEmpty(),
+            check('tripDate', 'Please enter flight date').not().isEmpty()
         ]
     ], async (req, res) => {
         const errors = validationResult(req);
@@ -60,17 +60,30 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { flightNumber, pdfFiles, flightDate, passengers } = req.body;
+        const { tripNumber, filesNames, tripDate, passengers } = req.body;
+
+
+        // Store flight in DB
+
+        // use FS to read pdf files and get the names of the passengers and add it to the passengers array (flight.passengers)
+
+        // use the names to call api from other system to get the passenger details
+
+        // do stuff with the passenger details - like sending mails
 
         // Build flight object
         const flightFields = {};
+
         flightFields.user = req.user.id;
+        flightFields.passengers = [];
         if (passengers) flightFields.passengers = passengers;
-        if (flightNumber) flightFields.flightNumber = flightNumber;
-        if (pdfFiles) flightFields.pdfFiles = pdfFiles;
-        if (flightDate) flightFields.flightDate = flightDate;
+        if (tripNumber) flightFields.tripNumber = tripNumber;
+        if (filesNames) flightFields.filesNames = filesNames;
+        if (tripDate) flightFields.tripDate = tripDate;
+
 
         try {
+
             let flight = new Flight(flightFields);
             console.log(flight)
             await flight.save();
@@ -95,14 +108,14 @@ router.post('/',
 // @desc    Update flight
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
-    const { flightNumber, pdfFiles, flightDate, passengers } = req.body;
+    const { tripNumber, filesNames, tripDate, passengers } = req.body;
     // Build flight object
     const flightFields = {};
     flightFields.user = req.user.id;
     if (passengers) flightFields.passengers = passengers;
-    if (flightNumber) flightFields.flightNumber = flightNumber;
-    if (pdfFiles) flightFields.pdfFiles = pdfFiles;
-    if (flightDate) flightFields.flightDate = flightDate;
+    if (tripNumber) flightFields.tripNumber = tripNumber;
+    if (filesNames) flightFields.filesNames = filesNames;
+    if (tripDate) flightFields.tripDate = tripDate;
 
     try {
         let flight = await Flight.findById(req.params.id);

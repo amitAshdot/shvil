@@ -70,7 +70,7 @@ export const login = ({ email, password }) => async dispatch => {
     // const saltRounds = 10;
     // const salt = await bcrypt.genSalt(saltRounds); // Generate a "salt" using 10 rounds
     // password = await bcrypt.hash(password, salt);
-    debugger
+
     const newMail = email.toLowerCase();
     const body = JSON.stringify({ email: newMail, password });
     try {
