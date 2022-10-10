@@ -12,13 +12,22 @@
   "author": "Amit Ashdot",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.1229.0",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.8",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.8",
     "express": "^4.18.1",
+    "express-fileupload": "^1.4.0",
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.10.0",
     "mongoose": "^6.6.1",
-    "request": "^2.88.2"
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
+    "pdf-parse": "^1.1.1",
+    "request": "^2.88.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "concurrently": "^7.4.0",

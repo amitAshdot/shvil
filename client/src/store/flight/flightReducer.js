@@ -4,14 +4,16 @@ import {
     ADD_FLIGHT,
     DELETE_FLIGHT,
     FLIGHT_ERROR,
-    CLEAR_FLIGHT
+    CLEAR_FLIGHT,
+    ADD_FILES
 } from './flightTypes';
 
 const initialState = {
     loading: false,
     error: {},
     expire_at: {},
-    flightNumber: "MAKXOEQQZ",
+    tripNumber: "MAKXOEQQZ",
+    filesNames: [],
     pdfFiles: ["efrxvb_1", "efrxvb_2", "efrxvb_4", "efrxvb_3"],
     passengers: [
         {
@@ -39,7 +41,7 @@ const initialState = {
             related: -1
         }
     ],
-    flightDate: "2022-12-12"
+    tripDate: "2022-12-12"
 }
 
 export default function flightReducer(state = initialState, action) {
@@ -58,10 +60,20 @@ export default function flightReducer(state = initialState, action) {
                 ...payload,
                 loading: false
             };
+        case ADD_FILES:
+
+            let newPdfFiles = [...state.pdfFiles, ...payload.pdfFiles];
+            let newFileNames = [...state.filesNames, ...payload.filesNames];
+            return {
+                ...state,
+                pdfFiles: newPdfFiles,
+                filesNames: newFileNames,
+                loading: false
+            };
         case ADD_FLIGHT:
             return {
                 ...state,
-                flights: [payload, ...state.flights],
+                ...payload,
                 loading: false
             };
         case DELETE_FLIGHT:

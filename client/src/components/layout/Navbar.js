@@ -39,7 +39,7 @@ const Navbar = () => {
     return (
         <nav className="navbar bg-dark">
             <h1 className="navbar__logo">
-                <Link to="/"><i className="fas fa-code"></i> לוגו המערכת</Link>
+                <NavLink to="/"><i className="fas fa-code"></i> לוגו המערכת</NavLink>
                 {/* <a href="index.html"><i className="fas fa-code"></i> DevConnector</a> */}
             </h1>
             {!authState.loading && (<>{authState.isAuthenticated ? authLinks : guestLinks}</>)}

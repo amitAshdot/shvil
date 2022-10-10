@@ -6,9 +6,17 @@ import Dropzone from 'react-dropzone'
 import XInsideSolidCircle from '../icons/XInsideSolidCircle.js'
 import PlusInCircle from '../icons/PlusInCircle.js'
 import { useDispatch, useSelector } from 'react-redux'
-import { addFlight } from '../../store/flight/flightAction'
+import { addFlight, uploadFiles } from '../../store/flight/flightAction'
 import PdfTest from '../layout/PdfTest'
+import { Navigate } from 'react-router-dom';
+
+
+// import UploadImageToS3WithNativeSdk from './UploadImageToS3WithNativeSdk'
 const AddTrip = () => {
+
+    const dispatch = useDispatch();
+    const flightState = useSelector(state => state.flight);
+    const authState = useSelector(state => state.auth);
 
     useEffect(() => {
 
@@ -17,19 +25,16 @@ const AddTrip = () => {
             // cleanup
         }
     }, [])
-    const dispatch = useDispatch();
-    const flightState = useSelector(state => state.flight);
-
 
     const [tripState, setTripState] = useState({
         tripNumber: '',
         tripDate: '',
-        files: [],
+        pdfFiles: [],
         filesNames: [],
         msg: '',
         error: ''
     })
-    const { tripNumber, tripDate, filesNames, files } = tripState
+    const { tripNumber, tripDate, filesNames, pdfFiles } = tripState
     //change input state
     const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
@@ -53,7 +58,7 @@ const AddTrip = () => {
         setTripState({
             tripNumber: '',
             tripDate: '',
-            files: [],
+            pdfFiles: [],
             filesNames: [],
             msg: '',
             error: ''
@@ -62,26 +67,40 @@ const AddTrip = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        const formData = new FormData();
+        formData.append('tripNumber', tripNumber);
+        formData.append('tripDate', tripDate);
+        if (pdfFiles) {
+            pdfFiles.forEach(pdfFile => {
+                formData.append('pdfFiles', pdfFile);
+            })
+        }
+        formData.append('filesNames', filesNames);
         let currentTripState = { ...tripState }
         // delete currentTripState.msg
         dispatch(addFlight(currentTripState))
+        dispatch(uploadFiles(formData))
     }
 
-    const onDrop = (files) => {
-        console.log(files);
-        debugger
-        Array.from(files).forEach(file => {
+    const onDrop = (pdfFiles) => {
+        Array.from(pdfFiles).forEach(file => {
             console.log(file)
             filesNames.push(file.name)
         })
         setTripState({
             ...tripState,
             filesNames,
-            files
+            pdfFiles
         })
+    }
+
+    if (!authState.isAuthenticated) {
+        return <Navigate to='/' />
     }
     return (
         <div className="add-trip-container">
+
+            {/* <UploadImageToS3WithNativeSdk /> */}
             {/* {files.length > 0 && files.map((file, index) => {
                 return <PdfTest key={index} file={file} />
             })} */}
@@ -111,7 +130,7 @@ const AddTrip = () => {
                 </div>
                 {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
 
-                <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple>
+                <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple >
                     {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
                         <div {...getRootProps()} className="left">
                             {!isDragActive && <img src="https://thumbs.dreamstime.com/b/drag-drop-symbol-concept-icon-flat-isolated-eps-illustration-minimal-modern-design-96340345.jpg" alt="img" width={150} height={150} />}

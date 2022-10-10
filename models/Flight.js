@@ -6,7 +6,7 @@ const FlightSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    flightNumber: {
+    tripNumber: {
         type: String,
         required: true,
         unique: true,
@@ -16,7 +16,7 @@ const FlightSchema = new mongoose.Schema({
         type: Array,
         required: true
     },
-    flightDate: {
+    tripDate: {
         type: Date,
         required: true
     },
