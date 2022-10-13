@@ -12,14 +12,21 @@
 
 }
 
+// @font-face {
+//   font-family: 'Rubik';
+//   src: url('https://fonts.googleapis.com/css?family=Rubik');
+//   font-display: swap;
+// }
 @font-face {
-  font-family: 'roboto';
-  src: url(https://fonts.googleapis.com/css?family=Roboto);
-  font-display: swap;
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/rubik/v21/iJWZBXyIfDnIV5PNhY1KTN7Z-Yh-B4iFVUU1dYPFkZVOA6w.woff2) format('woff2');
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
 }
 
 body {
-  font-family: 'ploni', sans-serif;
+  font-family: 'Rubik', sans-serif;
   font-weight: 400;
   font-size: $defaut-font-size;
   line-height: 1.7;

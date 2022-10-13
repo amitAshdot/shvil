@@ -23,6 +23,30 @@ router.get('/me', auth, async (req, res) => {
 
 });
 
+// @route   GET api/flight/
+// @desc    Get single flight
+// @access  public
+router.get('/:tripNumber', async (req, res) => {
+    const { tripNumber } = req.params;
+    console.log("req.params: ", tripNumber);
+    console.log("req.body: ", req.body);
+
+    try {
+        // const flight = await Flight.findById(req.params.id);
+        let flight = await Flight.findOne({ tripNumber: tripNumber.toUpperCase() });
+        if (!flight) {
+            return res.status(400).json({ msg: '12Flight not found' });
+        }
+        res.json(flight);
+    }
+    catch (err) {
+        console.error(err.message);
+        if (err) {
+            return res.status(400).json({ msg: 'Flight not found' });
+        }
+        res.status(500).send('Server Error');
+    }
+});
 
 
 // @route   GET api/flight/
@@ -50,9 +74,9 @@ router.post('/',
     [
         auth,
         [
-            check(' ', 'flightNumber is required').not().isEmpty(),
+            check('tripNumber', 'tripNumber is required').not().isEmpty(),
             check('pdfFiles', 'Please add PDF files').not().isEmpty(),
-            check('flightDate', 'Please enter flight date').not().isEmpty()
+            check('tripDate', 'Please enter flight date').not().isEmpty()
         ]
     ], async (req, res) => {
         const errors = validationResult(req);
@@ -60,28 +84,22 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { flightNumber, pdfFiles, flightDate, passengers } = req.body;
+        const { tripNumber, pdfFiles, tripDate, passengers, filesNames } = req.body;
 
         // Build flight object
         const flightFields = {};
         flightFields.user = req.user.id;
         if (passengers) flightFields.passengers = passengers;
-        if (flightNumber) flightFields.flightNumber = flightNumber;
-        if (pdfFiles) flightFields.pdfFiles = pdfFiles;
-        if (flightDate) flightFields.flightDate = flightDate;
+        if (tripNumber) flightFields.tripNumber = tripNumber;
+        if (pdfFiles) {
+            flightFields.pdfFiles = { pdfFiles };
+        }
+        if (filesNames) flightFields.filesNames = filesNames;
+        if (tripDate) flightFields.tripDate = tripDate;
 
         try {
             let flight = new Flight(flightFields);
-            console.log(flight)
             await flight.save();
-
-            // Return jsonwebtoken
-            const payload = {
-                flight: {
-                    id: flight.id
-                }
-            }
-
             return res.json(flight);
         }
         catch (err) {
@@ -95,17 +113,19 @@ router.post('/',
 // @desc    Update flight
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
-    const { flightNumber, pdfFiles, flightDate, passengers } = req.body;
+    const { tripNumber, pdfFiles, tripDate, passengers, filesNames } = req.body;
     // Build flight object
     const flightFields = {};
     flightFields.user = req.user.id;
     if (passengers) flightFields.passengers = passengers;
-    if (flightNumber) flightFields.flightNumber = flightNumber;
+    if (tripNumber) flightFields.tripNumber = tripNumber;
     if (pdfFiles) flightFields.pdfFiles = pdfFiles;
-    if (flightDate) flightFields.flightDate = flightDate;
+    if (filesNames) flightFields.filesNames = filesNames;
+    if (tripDate) flightFields.tripDate = tripDate;
 
     try {
-        let flight = await Flight.findById(req.params.id);
+        // let flight = await Flight.findById(req.params.id);
+        let flight = await Flight.findOne({ tripNumber: tripNumber.toUpperCase() });
         console.log(req.params.id)
         if (!flight) return res.status(404).json({ msg: 'Flight not found' });
         if (flight.user.toString() !== req.user.id) {

@@ -1,0 +1,17 @@
+.btn {
+
+
+    &-primary {
+        @include global-btn($color-white, $color-primary, $color-primary);
+        border-radius: 10px;
+    }
+
+    &-secondary {
+        @include global-btn($color-white, $color-secondary, $color-secondary);
+        border-radius: 10px;
+
+        &:hover {
+            color: $color-primary;
+        }
+    }
+}
