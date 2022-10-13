@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+   <Header>
+      <Protocol>CAV</Protocol>
+   </Header>
+   <Body>
+      <Command>PAX.DETAILS.RES</Command>
+      <Time>02.12.2021-14:09:17-22213</Time>
+      <docnum>
+         <ID>024541468</ID>
+         <Order>0</Order>
+      </docnum>
+   </Body>
+</Root>

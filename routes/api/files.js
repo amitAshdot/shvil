@@ -28,10 +28,10 @@ router.post('/', async (req, res) => {
         if (req.files === null || req.files.pdfFiles === null || req.files.pdfFiles.length === 0) {
             return res.status(400).json({ msg: 'No file uploaded' });
         }
-        const s3 = new AWS.S3({
-            accessKeyId: config.get('accessKeyId'),
-            secretAccessKey: config.get('secretAccessKey'),
-        });
+        // const s3 = new AWS.S3({
+        //     accessKeyId: config.get('accessKeyId'),
+        //     secretAccessKey: config.get('secretAccessKey'),
+        // });
         if (req.files.pdfFiles.length > 1) {
             var params = [];
             req.files.pdfFiles.forEach(file => {
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
                 });
             });
             const responses = await Promise.all(
-                params.map(param => s3.upload(param).promise())
+                // params.map(param => s3.upload(param).promise())
             )
 
 
@@ -61,14 +61,15 @@ router.post('/', async (req, res) => {
                 Key: req.files.pdfFiles.name, // File name you want to save as in S3
                 Body: fileContent
             };
-            s3.upload(params, function (err, data) {
-                if (err) {
-                    console.log(err)
-                    console.log('params: ', params);
-                    throw err;
-                }
-                return res.status(200).json({ msg: 'File uploaded successfully.', data: data.Location });
-            })
+            // s3.upload(params, function (err, data) {
+            //     if (err) {
+            //         console.log(err)
+            //         console.log('params: ', params);
+            //         throw err;
+            //     }
+
+            //     return res.status(200).json({ msg: 'File uploaded successfully.', data: data });
+            // })
         }
     }
     catch (err) {

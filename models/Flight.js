@@ -12,6 +12,9 @@ const FlightSchema = new mongoose.Schema({
         unique: true,
         uppercase: true
     },
+    pdfName: {
+        type: Array
+    },
     pdfFiles: {
         type: Array,
         required: true

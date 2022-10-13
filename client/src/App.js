@@ -14,6 +14,7 @@ import store from './store/store';
 import NotFound404 from './components/pages/NotFound404';
 import setAuthToken from './utils/setAuthToken';
 import { loadUser } from './store/auth/authAction';
+import Flight from './components/pages/Flight';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -34,9 +35,10 @@ const App = () => {
       <>
         <Navbar />
         <Routes>
-          <Route exact path="/" element={<Login />} />
+          <Route exact path="/login" element={<Login />} />
           <Route exact path="/landing" element={<Landing />} />
-          <Route exact path="/add-vacation" element={<AddTrip />} />
+          <Route exact path="/" element={<AddTrip />} />
+          <Route exact path="/flight/:id" element={<Flight />} />
           <Route path="*" element={<NotFound404 />} />
         </Routes>
         {/* <Landing /> */}

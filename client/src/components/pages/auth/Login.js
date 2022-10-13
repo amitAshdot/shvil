@@ -28,7 +28,7 @@ const Login = () => {
     }
 
     if (authState.isAuthenticated) {
-        return <Navigate to='/landing' />
+        return <Navigate to='/' />
     } else
         return (
             <div className="login">

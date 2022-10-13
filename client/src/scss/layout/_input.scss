@@ -4,6 +4,7 @@
     border: none;
     border-bottom: 2px solid $color-grey-dark-3;
     overflow: visible;
+    font-size: 1.2rem;
 
     &:focus,
     &:active,
@@ -64,7 +65,7 @@
         height: 100%;
         display: flex;
         align-items: center;
-        padding-right: 1.5rem;
+        padding-right: 0.5rem;
         pointer-events: none;
         font-size: 1.3rem;
         line-height: 1.3rem;

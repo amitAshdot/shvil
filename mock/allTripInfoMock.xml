@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+   <Header>
+      <Protocol>CAV</Protocol>
+      <Version>1.00</Version>
+      <EtopsID>LLH-------</EtopsID>
+      <Password>-------</Password>
+      <UserId>-------</UserId>
+   </Header>
+   ;
+   <Body>
+      <Command>PAX.DETAILS.REQ</Command>
+      <Id>028507594</Id>
+      <Phone>ק</Phone>
+   </Body>
+</Root>

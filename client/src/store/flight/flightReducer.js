@@ -12,36 +12,37 @@ const initialState = {
     loading: false,
     error: {},
     expire_at: {},
-    tripNumber: "MAKXOEQQZ",
+    tripNumber: "",
     filesNames: [],
-    pdfFiles: ["efrxvb_1", "efrxvb_2", "efrxvb_4", "efrxvb_3"],
+    pdfFiles: [],
     passengers: [
         {
             no: 0,
-            pdfName: "efaaaaaaaaarxvb_1",
-            name: "teesta test",
+            pdfName: "",
+            name: "",
             status: 0,
             haveRelated: false,
             related: -1
         },
         {
             no: 1,
-            pdfName: "efaaaaaaaaarxvb_2",
-            name: "izik moshe",
+            pdfName: "",
+            name: "",
             status: 0,
             haveRelated: false,
             related: -1
         },
         {
             no: 2,
-            pdfName: "efaaaaaaaaarxvb_3",
+            pdfName: "",
             name: "moshe choen",
             status: 0,
             haveRelated: false,
             related: -1
         }
     ],
-    tripDate: "2022-12-12"
+    flight: {},
+    tripDate: ""
 }
 
 export default function flightReducer(state = initialState, action) {
@@ -61,9 +62,10 @@ export default function flightReducer(state = initialState, action) {
                 loading: false
             };
         case ADD_FILES:
-
-            let newPdfFiles = [...state.pdfFiles, ...payload.pdfFiles];
+            debugger
+            let newPdfFiles = [...new Set([...state.pdfFiles, ...payload.pdfFiles])];
             let newFileNames = [...state.filesNames, ...payload.filesNames];
+
             return {
                 ...state,
                 pdfFiles: newPdfFiles,
