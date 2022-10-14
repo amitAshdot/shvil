@@ -6,3 +6,4 @@ export const DELETE_FLIGHT = 'DELETE_FLIGHT';
 export const FLIGHT_ERROR = 'FLIGHT_ERROR';
 export const CLEAR_FLIGHT = 'CLEAR_FLIGHT';
 export const ADD_FILES = 'ADD_FILES';
+export const GET_PDF_NAMES = 'GET_PDF_NAMES';

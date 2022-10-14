@@ -4,7 +4,7 @@ const auth = require('../../middleware/auth');
 const config = require('config');
 const Files = require('../../models/Files');
 var AWS = require('aws-sdk');
-
+// import { mainFunction } from '../utils';
 
 // @route   GET api/auth
 // @desc    Test route
@@ -76,5 +76,75 @@ router.post('/', async (req, res) => {
 });
 
 
+// @route   GET api/files/pdf-names
+// @desc    get names from files
+// @access  Public
+router.get('/pdf-names', auth, async (req, res) => {
+    try {
+        console.log('req.query: ', req.query);
+        // const path = `${req.body.pdfFiles}`;
+        let test = await mainFunction('./pdfFiles');
+        // console.log('testtesttestt: ', test);
+        console.log('test123: ', test);
+        return res.status(200).json({ msg: 'the names from pdf are', data: test });
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
+
+
+
+// --- helpers ---
+const mainFunction = async (FILE_PATH) => {
+    var path = require('path');
+    var fs = require('fs');
+    const pdf = require('pdf-parse');
+    if (!FILE_PATH) {
+        console.log("No FILE_PATH, FILE_PATH: ", FILE_PATH);
+    }
+    //joining path of directory 
+    var directoryPath = path.join('pdf', '');
+    //only pdf
+    const EXTENSION = '.pdf';
+    let peopleObjectArr = []
+    try {
+        //passsing directoryPath and callback function
+        const files = fs.readdirSync(FILE_PATH, { withFileTypes: true });
+        const targetFiles = files.filter(file => {
+            return path.extname(file.name).toLowerCase() === EXTENSION;
+        });
+
+        // Basic Usage
+        let allFilePromises = targetFiles.map(file => {
+            if (fs.existsSync(`${FILE_PATH}/${file.name}`)) {
+                let dataBuffer = fs.readFileSync(`${FILE_PATH}/${file.name}`);
+                let filePromise = pdf(dataBuffer)
+                    .then(function (data) {
+                        var reName = /Passenger:(.*)\n/gm;
+                        var name = "";
+                        let match = reName.exec(data.text);
+                        if (match != null) {
+                            name = match[1];
+                            name = name.replace(/([A-Z])/g, ' $1').trim();
+                            peopleObjectArr.push({ name: name, isPaid: false, isTicketSent: false, ticketName: file });
+                            return { name: name, isPaid: false, isTicketSent: false, ticketName: file, relatedTo: null };
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log('error pad-parse: ', error)
+                    });
+                return filePromise;
+            }
+
+        });
+        let allPeopleObjectArr = await Promise.all(allFilePromises);
+        return allPeopleObjectArr;
+    } catch (err) {
+        console.log(err)
+    }
+
+}
 module.exports = router;

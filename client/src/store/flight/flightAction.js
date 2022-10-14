@@ -6,7 +6,8 @@ import {
     DELETE_FLIGHT,
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
-    ADD_FILES
+    ADD_FILES,
+    GET_PDF_NAMES
 } from './flightTypes';
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
@@ -231,16 +232,37 @@ const getKavDataByTripNumber = async (tripNumber) => {
 	</Body>
 </Root>`
 
-    const body = {}
+    // const body = {}
 
     const res = await fetch(`http://localhost:5000/api/flight/${tripNumber}`, xlmBody, config);
 
     return res.data;
 }
 
-const getNameFromPdf = async (pdfFiles) => {
+// export const getFlights = () => async dispatch => {
+export const getNameFromPdf = (pdfFiles) => async dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.token
+        }
+    };
+    const body = { pdfFiles }
+    try {
+        const res = await axios.get(`/api/files/pdf-names`, body, config);
+        dispatch({
+            type: GET_PDF_NAMES,
+            payload: res.data.data
+        });
 
+        return res.data;
+    } catch (err) {
+        console.log(err)
+
+    }
 }
+
+
 const sendUserMail = async (user) => {
     const { email, name, tripNumber } = user;
     const config = {

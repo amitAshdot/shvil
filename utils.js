@@ -96,6 +96,71 @@ const sendMail = async (mailOptions, userData) => {
     main().catch(console.error);
 
 
+
+
+    const getKavDataByTripNumber = async (tripNumber) => {
+        const axios = require('axios');
+        const url = `https://kavsystem.com/api/flight/${tripNumber}`;
+        // const response = await axios.get(url);
+        // return response.data;
+        const response = fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+
+                // tripNumber = body.tripNumber;
+                // PassengersDetailsArr = body.PassengersDetails; //array of objects [{fullName, hebFullName, isPaid, paidAmount, amountToPay, Email}]
+                // PassengersDetailsArr = PassengersDetailsArr.map(passenger => {
+                //     return { ...passenger, isTicketSent: false, ticketName: "" }
+                // })
+                console.log(data);
+                return PassengersDetailsArr;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        return response;
+    }
+
+    const compareKavDataWithPdfFiles = async (kavData, pdfFiles) => {
+        //compare kavData with pdfFiles
+        console.log("kavData: ", kavData);
+        console.log("pdfFiles: ", pdfFiles);
+    }
+
+    const isUserPaid = (user) => { user.paidAmount === user.amountToPay; }
+
+    const getUserData = async (userData) => {
+        const { name, email, phone, id } = userData;
+        return { name, email, phone }
+    }
+
+    const sendMailWithAttachment = async (mailOptions, userData) => {
+        const nodemailer = require("nodemailer");
+        const transporter = nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: testAccount.user, // generated ethereal user
+                pass: testAccount.pass, // generated ethereal password
+            },
+        });
+
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+            from: '"Amit 👻" <amit@example.com>', // sender address
+            to: "amitashdot@gmail.com", // list of receivers
+            subject: "Hello ✔", // Subject line
+            text: "Hello world?", // plain text body
+            html: "<b>Hello world?</b>", // html body
+        });
+
+    }
 }
 // sendMail();
 

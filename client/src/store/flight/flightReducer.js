@@ -6,7 +6,8 @@ import {
     DELETE_FLIGHT,
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
-    ADD_FILES
+    ADD_FILES,
+    GET_PDF_NAMES
 } from './flightTypes';
 
 const initialState = {
@@ -104,6 +105,13 @@ export default function flightReducer(state = initialState, action) {
                 flight: null,
                 loading: false
             };
+        case GET_PDF_NAMES:
+            return {
+                ...state,
+                userDetails: payload,
+                loading: false
+            };
+
         default:
             return state;
     }

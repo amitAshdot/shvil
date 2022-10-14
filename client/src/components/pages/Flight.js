@@ -5,7 +5,7 @@ import { getFlight } from '../../store/flight/flightAction';
 import { Navigate } from 'react-router-dom';
 import AddTrip from './AddTrip';
 import EditTrip from './EditTrip';
-
+import { getNameFromPdf } from '../../store/flight/flightAction';
 const Flight = (props) => {
 
     const dispatch = useDispatch();
@@ -15,7 +15,10 @@ const Flight = (props) => {
     const { id } = useParams()
 
     useEffect(() => {
+
         const onload = () => {
+            let t = dispatch(getNameFromPdf())
+            debugger
             const currentFlight = dispatch(getFlight(id))
             const newStateObject = {
                 tripDate: currentFlight.tripDate,
@@ -25,6 +28,7 @@ const Flight = (props) => {
                 date: currentFlight.date,
                 msg: '',
                 error: '',
+                nnnn: t
             }
             setTripState({
                 ...newStateObject
