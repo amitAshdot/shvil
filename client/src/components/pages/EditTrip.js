@@ -9,13 +9,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { editFlight } from '../../store/flight/flightAction'
 // import PdfTest from '../layout/PdfTest'
 import { Navigate } from 'react-router-dom';
-
+import Loader from '../layout/Loader'
 
 const EditTrip = (props) => {
 
   const dispatch = useDispatch();
   // const flightState = useSelector(state => state.flight);
   const authState = useSelector(state => state.auth);
+  const flightState = useSelector(state => state.flight);
 
   useEffect(() => {
 
@@ -113,58 +114,60 @@ const EditTrip = (props) => {
     return <Navigate to='/login' />
   }
   return (
-    <div className="add-trip-container">
-      <form onSubmit={onSubmit}>
-        <div className="right">
-          <picture>
-            <source media="(max-width: 1025px)" srcSet={folderImage} defer width="110" height="42" />
-            <img defer src={folderImage} alt="לוגו" title="לוגו" className="logo" width="320" height="236.812" />
-          </picture>
-          <div className="input-container">
-            <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
-            <label htmlFor="email" className="label-name"> מספר טיול</label>
-          </div>
+    flightState.loading ? <Loader /> :
 
-          {/* <div className="input-container">
+      <div className="add-trip-container">
+        <form onSubmit={onSubmit}>
+          <div className="right">
+            <picture>
+              <source media="(max-width: 1025px)" srcSet={folderImage} defer width="110" height="42" />
+              <img defer src={folderImage} alt="לוגו" title="לוגו" className="logo" width="320" height="236.812" />
+            </picture>
+            <div className="input-container">
+              <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
+              <label htmlFor="email" className="label-name"> מספר טיול</label>
+            </div>
+
+            {/* <div className="input-container">
             <input onChange={onChange} className='input form__field' id="tripDate" name="tripDate" type="date" value={dateFormatted[0]} placeholder="תאריך טיול" />
             <label htmlFor="email" className="label-name">תאריך טיול"</label>
           </div> */}
-          {/* loop of pdf files upload */}
+            {/* loop of pdf files upload */}
 
-          <input type="submit" value="שליחה" className='btn btn-secondary' />
+            <input type="submit" value="שליחה" className='btn btn-secondary' />
 
-          <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
+            <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
 
-          <div className="files-status">
-            {filesNames.length > 0 ? <ul>{filesToShow}</ul> : null}
-          </div>
-        </div>
-        {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
-
-        <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple >
-          {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
-            <div {...getRootProps()} className="left">
-              {!isDragActive && <img src="https://thumbs.dreamstime.com/b/drag-drop-symbol-concept-icon-flat-isolated-eps-illustration-minimal-modern-design-96340345.jpg" alt="img" width={150} height={150} />}
-              {isDragActive && !isDragReject && <PlusInCircle className={'upload-form'} />}
-              {isDragReject && <XInsideSolidCircle className={'upload-form'} />}
-              <input {...getInputProps()} />
-              {!isDragActive &&
-                <div className="text">
-                  <p className='drag'>הוספ/י קבצים לפה</p>
-                  <p className='or'>או</p>
-                  <p className='click'>לחץ/י להעלאה</p>
-                  {/* <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" /> */}
-                </div>}
-              {isDragActive && !isDragReject && "אפשר לשחרר כאן"}
-              {isDragReject && "טעות בקובץ"}
+            <div className="files-status">
+              {filesNames.length > 0 ? <ul>{filesToShow}</ul> : null}
             </div>
-          )}
-        </Dropzone>
+          </div>
+          {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
 
-        {/* {tripState.msg ? <p>{tripState.msg}</p> : null} */}
-        {/* {tripState.error ? <p>{tripState.error}</p> : null} */}
-      </form>
-    </div>
+          <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple >
+            {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
+              <div {...getRootProps()} className="left">
+                {!isDragActive && <img src="https://thumbs.dreamstime.com/b/drag-drop-symbol-concept-icon-flat-isolated-eps-illustration-minimal-modern-design-96340345.jpg" alt="img" width={150} height={150} />}
+                {isDragActive && !isDragReject && <PlusInCircle className={'upload-form'} />}
+                {isDragReject && <XInsideSolidCircle className={'upload-form'} />}
+                <input {...getInputProps()} />
+                {!isDragActive &&
+                  <div className="text">
+                    <p className='drag'>הוספ/י קבצים לפה</p>
+                    <p className='or'>או</p>
+                    <p className='click'>לחץ/י להעלאה</p>
+                    {/* <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" /> */}
+                  </div>}
+                {isDragActive && !isDragReject && "אפשר לשחרר כאן"}
+                {isDragReject && "טעות בקובץ"}
+              </div>
+            )}
+          </Dropzone>
+
+          {/* {tripState.msg ? <p>{tripState.msg}</p> : null} */}
+          {/* {tripState.error ? <p>{tripState.error}</p> : null} */}
+        </form>
+      </div>
   )
 }
 

@@ -7,7 +7,8 @@ import {
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
     ADD_FILES,
-    GET_PDF_NAMES
+    GET_PDF_NAMES,
+    LOADING_START
 } from './flightTypes';
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
@@ -20,6 +21,9 @@ window.Buffer = window.Buffer || require("buffer").Buffer;
 
 export const getFlights = () => async dispatch => {
     try {
+        dispatch({
+            type: LOADING_START
+        })
         const res = await axios.get('/api/flight');
 
         dispatch({
@@ -36,7 +40,9 @@ export const getFlights = () => async dispatch => {
 
 export const getFlight = id => async dispatch => {
     try {
-
+        dispatch({
+            type: LOADING_START
+        })
         const res = await axios.get(`/api/flight/${id}`);
         dispatch({
             type: GET_FLIGHT,
@@ -59,6 +65,9 @@ export const addFlight = (currentState, formData) => async dispatch => {
         }
     };
     try {
+        dispatch({
+            type: LOADING_START
+        })
         const resExist = await dispatch(getFlight(currentState._id));
         if (resExist) {
             dispatch(setAlert('החופשה קיימת, כנס/י לעמוד עריכה', 'danger'));
@@ -111,6 +120,9 @@ export const editFlight = (currentState, formData) => async dispatch => {
         }
     };
     try {
+        dispatch({
+            type: LOADING_START
+        })
         //check if flight exist
         let resExist = await dispatch(getFlight(currentState._id));
         if (!resExist) {
@@ -138,12 +150,16 @@ export const editFlight = (currentState, formData) => async dispatch => {
         });
     }
 }
+
 export const clearFlight = () => dispatch => {
     dispatch({ type: CLEAR_FLIGHT });
 }
 
 export const uploadFiles = formData => async dispatch => {
     try {
+        dispatch({
+            type: LOADING_START
+        })
         const config = {
             onUploadProgress: function (progressEvent) {
                 var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -197,6 +213,31 @@ export const uploadFiles = formData => async dispatch => {
     }
 }
 
+export const getNameFromPdf = (pdfFiles) => async dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.token
+        }
+    };
+    const body = { pdfFiles }
+    try {
+        dispatch({
+            type: LOADING_START
+        })
+        const res = await axios.get(`/api/files/pdf-names`, body, config);
+        dispatch({
+            type: GET_PDF_NAMES,
+            payload: res.data.data
+        });
+
+        return res.data;
+    } catch (err) {
+        console.log(err)
+
+    }
+}
+
 
 //---helpers---
 const setJsonToXml = async (json) => {
@@ -240,27 +281,7 @@ const getKavDataByTripNumber = async (tripNumber) => {
 }
 
 // export const getFlights = () => async dispatch => {
-export const getNameFromPdf = (pdfFiles) => async dispatch => {
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            'x-auth-token': localStorage.token
-        }
-    };
-    const body = { pdfFiles }
-    try {
-        const res = await axios.get(`/api/files/pdf-names`, body, config);
-        dispatch({
-            type: GET_PDF_NAMES,
-            payload: res.data.data
-        });
 
-        return res.data;
-    } catch (err) {
-        console.log(err)
-
-    }
-}
 
 
 const sendUserMail = async (user) => {

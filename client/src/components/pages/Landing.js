@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom';
 import FlightCard from '../layout/FlightCard'
 import { getFlights } from '../../store/flight/flightAction'
+import Loader from '../layout/Loader';
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const Landing = () => {
@@ -44,32 +45,34 @@ const Landing = () => {
         return <Navigate to='/login' />
     }
     return (
-        <div className="landing">
-            <section className="container">
-                <h1 className="large text-primary">רשימת טיולים</h1>
-                <div className="input-container landing__input">
-                    <input className='input form__field' type="text" name='search' id="search" onChange={onSearch} value={searchInput} />
-                    <label htmlFor='search' className="label-name">חיפוש מספר טיול</label>
-                </div>
+        flightState.loading ? <Loader /> :
 
-                <div className="flights">
-                    {isFlights ?
-                        searchArr.length > 0 ?
-                            searchArr.map((flight, index) => {
-                                return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
-                            }
-                            )
+            <div className="landing">
+                <section className="container">
+                    <h1 className="large text-primary">רשימת טיולים</h1>
+                    <div className="input-container landing__input">
+                        <input className='input form__field' type="text" name='search' id="search" onChange={onSearch} value={searchInput} />
+                        <label htmlFor='search' className="label-name">חיפוש מספר טיול</label>
+                    </div>
+
+                    <div className="flights">
+                        {isFlights ?
+                            searchArr.length > 0 ?
+                                searchArr.map((flight, index) => {
+                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
+                                }
+                                )
+                                :
+                                flightState.flights.map((flight, index) => {
+                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
+                                }
+                                )
                             :
-                            flightState.flights.map((flight, index) => {
-                                return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
-                            }
-                            )
-                        :
-                        <h2>אין טיסות</h2>
-                    }
-                </div>
-            </section>
-        </div>
+                            <h2>אין טיסות</h2>
+                        }
+                    </div>
+                </section>
+            </div>
     )
 }
 

@@ -7,7 +7,8 @@ import {
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
     ADD_FILES,
-    GET_PDF_NAMES
+    GET_PDF_NAMES,
+    LOADING_START
 } from './flightTypes';
 
 const initialState = {
@@ -110,6 +111,12 @@ export default function flightReducer(state = initialState, action) {
                 ...state,
                 userDetails: payload,
                 loading: false
+            };
+
+        case LOADING_START:
+            return {
+                ...state,
+                loading: true
             };
 
         default:
