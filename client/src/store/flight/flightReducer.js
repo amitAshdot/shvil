@@ -2,6 +2,7 @@ import {
     GET_FLIGHTS,
     GET_FLIGHT,
     ADD_FLIGHT,
+    EDIT_FLIGHT,
     DELETE_FLIGHT,
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
@@ -62,22 +63,29 @@ export default function flightReducer(state = initialState, action) {
                 loading: false
             };
         case ADD_FILES:
-            debugger
             let newPdfFiles = [...new Set([...state.pdfFiles, ...payload.pdfFiles])];
             let newFileNames = [...state.filesNames, ...payload.filesNames];
-
             return {
                 ...state,
                 pdfFiles: newPdfFiles,
                 filesNames: newFileNames,
                 loading: false
             };
+
         case ADD_FLIGHT:
             return {
                 ...state,
                 ...payload,
                 loading: false
             };
+
+        case EDIT_FLIGHT:
+            return {
+                ...state,
+                ...payload,
+                loading: false
+            };
+
         case DELETE_FLIGHT:
             return {
                 ...state,

@@ -47,9 +47,6 @@ router.post('/', async (req, res) => {
             const responses = await Promise.all(
                 // params.map(param => s3.upload(param).promise())
             )
-
-
-
             return res.status(200).json({ msg: 'File uploaded successfully', data: responses });
         } else {
             // Binary data base64

@@ -2,6 +2,7 @@ import {
     GET_FLIGHTS,
     GET_FLIGHT,
     ADD_FLIGHT,
+    EDIT_FLIGHT,
     DELETE_FLIGHT,
     FLIGHT_ERROR,
     CLEAR_FLIGHT,
@@ -34,6 +35,7 @@ export const getFlights = () => async dispatch => {
 
 export const getFlight = id => async dispatch => {
     try {
+
         const res = await axios.get(`/api/flight/${id}`);
         dispatch({
             type: GET_FLIGHT,
@@ -56,8 +58,7 @@ export const addFlight = (currentState, formData) => async dispatch => {
         }
     };
     try {
-        //check if flight exist
-        const resExist = await dispatch(getFlight(currentState.tripNumber));
+        const resExist = await dispatch(getFlight(currentState._id));
         if (resExist) {
             dispatch(setAlert('החופשה קיימת, כנס/י לעמוד עריכה', 'danger'));
             return;
@@ -101,6 +102,41 @@ export const deleteFlight = id => async dispatch => {
     }
 }
 
+export const editFlight = (currentState, formData) => async dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.token
+        }
+    };
+    try {
+        //check if flight exist
+        let resExist = await dispatch(getFlight(currentState._id));
+        if (!resExist) {
+            dispatch(setAlert('לא נמצאה חופשה - אנא בדוק/י את מספר החופשה', 'danger'));
+            return;
+        }
+        resExist = { ...resExist, ...currentState };
+        const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
+        await dispatch(uploadFiles(formData))
+
+        dispatch({
+            type: EDIT_FLIGHT,
+            payload: res.data
+        });
+
+        dispatch(setAlert('Flight Created', 'success'));
+    } catch (err) {
+        const errors = err.response.data.msg;
+        if (errors) {
+            errors.forEach(error => dispatch(setAlert(error, 'danger')));
+        }
+        dispatch({
+            type: FLIGHT_ERROR,
+            payload: { msg: err.response.statusText, status: err.response.status }
+        });
+    }
+}
 export const clearFlight = () => dispatch => {
     dispatch({ type: CLEAR_FLIGHT });
 }
@@ -108,6 +144,10 @@ export const clearFlight = () => dispatch => {
 export const uploadFiles = formData => async dispatch => {
     try {
         const config = {
+            onUploadProgress: function (progressEvent) {
+                var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                console.log(percentCompleted);
+            },
             headers: {
                 'Content-Type': 'application/json',
                 'x-auth-token': localStorage.token
@@ -118,7 +158,7 @@ export const uploadFiles = formData => async dispatch => {
         const res = await axios.post(`/api/files`, formData, config);
         let responseData = res.data.data;
         let finaleData = { pdfFiles: [], filesNames: [] };
-        debugger
+
         if (responseData.constructor === Array) {
             responseData.forEach(data => {
                 finaleData.pdfFiles.push({

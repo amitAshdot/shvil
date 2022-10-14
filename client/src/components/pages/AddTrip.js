@@ -9,32 +9,21 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addFlight, uploadFiles } from '../../store/flight/flightAction'
 // import PdfTest from '../layout/PdfTest'
 import { Navigate } from 'react-router-dom';
+import moment from 'moment';
 
-
-const AddTrip = (props) => {
+const AddTrip = () => {
 
     const dispatch = useDispatch();
-    // const flightState = useSelector(state => state.flight);
     const authState = useSelector(state => state.auth);
-
-    useEffect(() => {
-        if (props) {
-            if (props.currentTripState) {
-                if (props.currentTripState.tripNumber) {
-                    setTripState({
-                        ...props.currentTripState
-                    })
-                }
-            }
-        }
-        return () => {
-            // cleanup
-        }
-    }, [props])
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    console.log('tzoffset', tzoffset / 60000)
+    console.log('new Date(Date.now()): ', new Date(Date.now()))
+    console.log('newDate(Date.now())).toISOString(): ', (new Date(Date.now())).toISOString().slice(0, -1))
+    console.log('newDate(Date.now()-- tzoffset)).toISOString(): ', (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1))
 
     const [tripState, setTripState] = useState({
         tripNumber: '',
-        tripDate: '',
+        tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
         pdfFiles: [],
         filesNames: [],
         msg: '',
@@ -76,7 +65,7 @@ const AddTrip = (props) => {
         // dispatch(uploadFiles(formData))
 
 
-        // do stuff - get passanger names from pdf files, get trip api from Kav system, save to db
+        // do stuff - get passenger names from pdf files, get trip api from Kav system, save to db
         dispatch(addFlight(currentTripState, formData))
     }
 
@@ -88,10 +77,10 @@ const AddTrip = (props) => {
         let newPdfState = [...pdfFiles, ...newPdfFiles]
         // const newPdfNames = [...filesNames, ...newPdfFiles.map(file => file.name)]
 
-        newPdfState = newPdfState.reduce((accumalator, current) => {
-            if (!accumalator.some((item) => item.name === current.name))
-                accumalator.push(current);
-            return accumalator;
+        newPdfState = newPdfState.reduce((accumulator, current) => {
+            if (!accumulator.some((item) => item.name === current.name))
+                accumulator.push(current);
+            return accumulator;
         }, []);
 
         const newFilesNames = [...new Set(filesNames)];
@@ -111,17 +100,17 @@ const AddTrip = (props) => {
                 <div className="right">
                     <picture>
                         <source media="(max-width: 1025px)" srcSet={folderImage} defer width="110" height="42" />
-                        <img defer src={folderImage} alt="לוגו" title="לוגו" className="logo" width="320" height="236.812" />
+                        <img defer src={folderImage} alt="תיקיות" title="תיקיות" className="logo" width="320" height="236.812" />
                     </picture>
                     <div className="input-container">
                         <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
                         <label htmlFor="email" className="label-name"> מספר טיול</label>
                     </div>
 
-                    <div className="input-container">
-                        <input onChange={onChange} className='input form__field' id="tripDate" name="tripDate" type="date" value={dateFormatted[0]} placeholder="תאריך טיול" />
-                        {/* <label htmlFor="email" className="label-name">תאריך טיול"</label> */}
-                    </div>
+                    {/* <div className="input-container">
+                        <input onChange={onChange} className='input form__field' id="tripDate" name="tripDate" type="datetime-local" value={dateFormatted[0]} placeholder="תאריך טיול" />
+                        <label htmlFor="email" className="label-name">תאריך טיול"</label>
+                    </div> */}
                     {/* loop of pdf files upload */}
 
                     <input type="submit" value="שליחה" className='btn btn-secondary' />

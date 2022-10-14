@@ -13,7 +13,10 @@ const mainFunction = (FILE_PATH) => {
     const EXTENSION = '.pdf';
     let peopleObjectArr = []
     try {
-        const files = fs.readdirSync(directoryPath, { withFileTypes: true });
+        console.log("directoryPath: ", directoryPath);
+        //passsing directoryPath and callback function
+
+        const files = fs.readdirSync(FILE_PATH, { withFileTypes: true });
         const targetFiles = files.filter(file => {
             return path.extname(file.name).toLowerCase() === EXTENSION;
         });
@@ -24,6 +27,7 @@ const mainFunction = (FILE_PATH) => {
                 let dataBuffer = fs.readFileSync(`${FILE_PATH}/${file.name}`);
                 pdf(dataBuffer)
                     .then(function (data) {
+                        console.log("data: ", data);
                         var reName = /Passenger:(.*)\n/gm;
                         var name = "";
                         let match = reName.exec(data.text);
@@ -52,11 +56,7 @@ const mainFunction = (FILE_PATH) => {
 
 }
 
-module.exports = { mainFunction };
-
-
-
-const sendMail = async (mailOptions) => {
+const sendMail = async (mailOptions, userData) => {
     const nodemailer = require("nodemailer");
 
     // async..await is not allowed in global scope, must use a wrapper
@@ -94,5 +94,10 @@ const sendMail = async (mailOptions) => {
     }
 
     main().catch(console.error);
+
+
 }
-sendMail();
+// sendMail();
+
+
+module.exports = { mainFunction, sendMail };

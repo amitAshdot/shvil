@@ -42,11 +42,10 @@ const Navbar = () => {
             {!authState.loading && (<>{authState.isAuthenticated ? authLinks : guestLinks}</>)}
 
             <h1 className="navbar__logo">
-                <NavLink to="/">
-                    <img className='logo' src={logo1} alt="logo1" />
-                    <img className='logo' src={logo2} alt="logo2" />
-
-                </NavLink>
+                {/* <NavLink to="/"> */}
+                <img className='logo' src={logo1} alt="logo1" />
+                <img className='logo' src={logo2} alt="logo2" />
+                {/* </NavLink> */}
                 {/* <a href="index.html"><i className="fas fa-code"></i> DevConnector</a> */}
             </h1>
         </nav>

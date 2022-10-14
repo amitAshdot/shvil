@@ -17,7 +17,6 @@ const FlightSchema = new mongoose.Schema({
     },
     pdfFiles: {
         type: Array,
-        required: true
     },
     tripDate: {
         type: Date,
@@ -51,6 +50,10 @@ const FlightSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    folderName: {
+        type: String,
+        default: new Date().getTime()
     }
 });
 

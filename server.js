@@ -12,7 +12,6 @@ const { mainFunction } = require('./utils');
 const fileUpload = require('express-fileupload');
 
 
-
 const app = express();
 let user;
 // Connect Database
@@ -39,4 +38,5 @@ app.get('/', (req, res) => { res.send('  API Running  ') });
 
 app.listen(PORT, () => { console.log(`server started on port ${PORT}`) });
 
+// mainFunction('./pdfFiles')
 // mainFunction();

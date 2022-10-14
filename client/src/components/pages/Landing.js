@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { getFlights } from '../../store/flight/flightAction'
 import { Navigate } from 'react-router-dom';
-
+import FlightCard from '../layout/FlightCard'
+import { getFlights } from '../../store/flight/flightAction'
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
 const Landing = () => {
@@ -17,7 +16,6 @@ const Landing = () => {
             // cleanup
         }
     }, [dispatch])
-
     const [tripState, setTripState] = useState({
         tripNumber: '',
         tripDate: '',
@@ -28,12 +26,12 @@ const Landing = () => {
         msg: '',
         error: ''
     })
-    const { tripNumber, tripDate, filesNames, pdfFiles, searchInput, searchArr } = tripState
+    const { searchInput, searchArr } = tripState
 
     const isFlights = flightState.flights ? flightState.flights.length > 0 ? true : false : null
 
     const onSearch = (e) => {
-        debugger
+
         const searchArr = flightState.flights.filter(flight => flight.tripNumber.includes(e.target.value.toUpperCase()))
         setTripState({
             ...tripState,
@@ -58,80 +56,18 @@ const Landing = () => {
                     {isFlights ?
                         searchArr.length > 0 ?
                             searchArr.map((flight, index) => {
-                                return <div key={index} className="flight">
-                                    < div className="flight-info" >
-                                        <div className='flight-info__number'>
-                                            <span>טיול מספר:</span>
-                                            <p className='flight-info-text'>{flight.tripNumber}</p>
-                                        </div>
-                                        <div className='flight-info__date'>
-                                            <span>תאריך שינוי:</span>
-                                            <p className='flight-info-text'> {flight.tripDate}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flight-actions">
-                                        <Link to={`/flight/${flight._id}`} className="btn btn-secondary">
-                                            <p>
-                                                צפייה בפרטים
-                                            </p>
-                                        </Link>
-                                    </div>
-                                </div>
+                                return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
                             }
                             )
                             :
                             flightState.flights.map((flight, index) => {
-                                return <div key={index} className="flight">
-                                    < div className="flight-info" >
-                                        <div className='flight-info__number'>
-                                            <span>טיול מספר:</span>
-                                            <p className='flight-info-text'>{flight.tripNumber}</p>
-                                        </div>
-                                        <div className='flight-info__date'>
-                                            <span>תאריך שינוי:</span>
-                                            <p className='flight-info-text'> {flight.tripDate}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flight-actions">
-                                        <Link to={`/flight/${flight._id}`} className="btn btn-secondary">
-                                            <p>
-                                                צפייה בפרטים
-                                            </p>
-                                        </Link>
-                                    </div>
-                                </div>
+                                return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
                             }
                             )
                         :
                         <h2>אין טיסות</h2>
                     }
                 </div>
-                {/* <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
-                <label htmlFor="email" className="label-name"> מספר טיול</label> */}
-                {/* <div className="flights">
-                    {isFlights ? flightState.flights.map((flight, index) => {
-                        return <div key={index} className="flight">
-                            <div className="flight-info">
-                                <div className='flight-info__number'>
-                                    <span>טיול מספר:</span>
-                                    <p className='flight-info-text'>{flight.tripNumber}</p>
-                                </div>
-                                <div className='flight-info__date'>
-                                    <span>תאריך שינוי:</span>
-                                    <p className='flight-info-text'> {flight.tripDate}</p>
-                                </div>
-                            </div>
-                            <div className="flight-actions">
-                                <Link to={`/flight/${flight._id}`} className="btn btn-secondary">
-                                    <p>
-                                        צפייה בפרטים
-                                    </p>
-                                </Link>
-                            </div>
-                        </div>
-                    }) : <h2>אין טיסות</h2>} */}
-                {/* </div> */}
-
             </section>
         </div>
     )

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getFlight } from '../../store/flight/flightAction';
 import { Navigate } from 'react-router-dom';
 import AddTrip from './AddTrip';
+import EditTrip from './EditTrip';
 
 const Flight = (props) => {
 
@@ -17,14 +18,13 @@ const Flight = (props) => {
         const onload = () => {
             const currentFlight = dispatch(getFlight(id))
             const newStateObject = {
-                tripNumber: currentFlight.tripNumber,
                 tripDate: currentFlight.tripDate,
+                tripNumber: currentFlight.tripNumber,
                 pdfFiles: currentFlight.pdfFiles,
                 filesNames: currentFlight.filesNames,
+                date: currentFlight.date,
                 msg: '',
                 error: '',
-                date: currentFlight.date,
-                dateFormatted: ''
             }
             setTripState({
                 ...newStateObject
@@ -35,18 +35,13 @@ const Flight = (props) => {
     }, [dispatch, id])
 
     useEffect(() => {
-        debugger
         if (flightState.date) {
-            let dateFormatted = date.replace('T', ' ').slice(0, 16)
-            dateFormatted = dateFormatted.split(' ')
-
+            const date = flightState.tripDate.slice(0, 10)
+            const time = flightState.tripDate.slice(11, 16)
+            const dateFormatted = [date, time]
             setTripState({
                 ...flightState,
-                dateFormatted: dateFormatted
-            })
-        } else {
-            setTripState({
-                ...flightState,
+                dateFormatted
             })
         }
         return () => { }
@@ -82,17 +77,17 @@ const Flight = (props) => {
                     </div>
                     <div className="flight-info__date">
                         <span>תאריך שינוי:</span>
-                        <p className="flight-info-text">{dateFormatted[0]}</p>
+                        <p className="flight-info-text">{dateFormatted ? dateFormatted[0] : null}</p>
                     </div>
 
 
                     <div className="flight-info__time">
                         <span>שעת שינוי:</span>
-                        <p className="flight-info-text">{dateFormatted[1]}</p>
+                        <p className="flight-info-text">{dateFormatted ? dateFormatted[1] : null}</p>
                     </div>
                 </div>
             </div>
-            <div className="singleFlight-files">
+            {/* <div className="singleFlight-files">
                 <h2>רשימת קבצים</h2>
                 <div className="singleFlight-files-list">
                     {filesNames.length > 0 ? filesNames.map((file, index) => {
@@ -102,10 +97,9 @@ const Flight = (props) => {
                     }) : <p>אין קבצים</p>}
                 </div>
 
-            </div>
+            </div> */}
 
-            {
-                tripNumber ? <AddTrip currentTripState={tripState} setCurrentTripState={setTripState} /> : null}
+            {tripNumber ? <EditTrip currentTripState={tripState} setCurrentTripState={setTripState} /> : null}
         </div>
     )
 }
