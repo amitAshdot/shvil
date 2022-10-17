@@ -19,7 +19,6 @@ const Flight = (props) => {
 
         const onload = () => {
             let t = dispatch(getNameFromPdf())
-            debugger
             const currentFlight = dispatch(getFlight(id))
             const newStateObject = {
                 tripDate: currentFlight.tripDate,

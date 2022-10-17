@@ -74,10 +74,20 @@ export const addFlight = (currentState, formData) => async dispatch => {
             return;
         }
 
+        const filesPath = await dispatch(uploadFiles(formData))//upload files to server
+
+        if (filesPath) {
+            currentState.pdfName = filesPath.filesNames;
+            currentState.pdfFiles = filesPath.pdfFiles;
+        }
         const res = await axios.post('/api/flight', currentState, config);
 
-        await dispatch(uploadFiles(formData))
 
+        if (filesPath.pdfFiles)
+            res.data.pdfFiles = filesPath.pdfFiles;
+
+        if (filesPath.filesNames)
+            res.data.pdfName = filesPath.filesNames;
         dispatch({
             type: ADD_FLIGHT,
             payload: res.data
@@ -85,7 +95,7 @@ export const addFlight = (currentState, formData) => async dispatch => {
 
         dispatch(setAlert('Flight Created', 'success'));
     } catch (err) {
-        const errors = err.response.data.msg;
+        const errors = err.response.msg;
         if (errors) {
             errors.forEach(error => dispatch(setAlert(error, 'danger')));
         }
@@ -129,9 +139,21 @@ export const editFlight = (currentState, formData) => async dispatch => {
             dispatch(setAlert('לא נמצאה חופשה - אנא בדוק/י את מספר החופשה', 'danger'));
             return;
         }
+
+        // const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
+        // await dispatch(uploadFiles(formData))
+
+        const filesPath = await dispatch(uploadFiles(formData))//upload files to server
+        debugger
+        console.log('filesPath: ', filesPath)
+        if (filesPath) {
+            currentState.pdfName = filesPath.filesNames;
+            currentState.pdfFiles = filesPath.pdfFiles;
+        }
         resExist = { ...resExist, ...currentState };
+
+        // const res = await axios.post('/api/flight', currentState, config);
         const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
-        await dispatch(uploadFiles(formData))
 
         dispatch({
             type: EDIT_FLIGHT,
@@ -170,7 +192,7 @@ export const uploadFiles = formData => async dispatch => {
                 'x-auth-token': localStorage.token
             }
         };
-        // const { pdfFiles, filesNames, tripNumber } = formData;
+
 
         const res = await axios.post(`/api/files`, formData, config);
         let responseData = res.data.data;
@@ -178,19 +200,15 @@ export const uploadFiles = formData => async dispatch => {
 
         if (responseData.constructor === Array) {
             responseData.forEach(data => {
-                finaleData.pdfFiles.push({
-                    ETag: data.ETag,
-                    Key: data.Key,
-                    Location: data.Location
-                });
-                finaleData.filesNames.push(data.Key);
+                finaleData.pdfFiles.push(data.uploadPath);
+                let fileName = data.uploadPath.split('/');
+                finaleData.filesNames.push(fileName[fileName.length - 1]);
             });
         } else {
-            finaleData.pdfFiles.push({
-                ETag: responseData.ETag,
-                Key: responseData.Key,
-                Location: responseData.Location
-            });
+            debugger
+            // finaleData.pdfFiles.push({
+            //     responseData.uploadPath
+            // });
         }
 
         dispatch({
@@ -238,6 +256,44 @@ export const getNameFromPdf = (pdfFiles) => async dispatch => {
     }
 }
 
+export const downloadReport = (folderPath) => async dispatch => {
+
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.token
+        }
+    };
+    const body = {}
+    // const body = { folderPath }
+    try {
+        dispatch({
+            type: LOADING_START
+        })
+
+        const res = await axios.get(`/api/files/report`, { responseType: 'blob' }, config);
+
+        const data = window.URL.createObjectURL(res.data);
+
+
+        const url = window.URL
+            .createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `report.xls`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        // const blob = await res.blob();
+        // download(blob, "test.pdf");
+        // dispatch({
+        //     type: DOWNLOAD_REPORT,
+        //     payload: res.data.data
+        // });
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 //---helpers---
 const setJsonToXml = async (json) => {

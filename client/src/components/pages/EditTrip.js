@@ -40,11 +40,12 @@ const EditTrip = (props) => {
     tripDate: '',
     pdfFiles: [],
     filesNames: [],
+    folderName: '',
     msg: '',
     error: '',
     dateFormatted: ''
   })
-  const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted } = tripState
+  const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted, folderName } = tripState
   //change input state
   const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
@@ -58,6 +59,7 @@ const EditTrip = (props) => {
       tripDate: '',
       pdfFiles: [],
       filesNames: [],
+      folderName: '',
       msg: '',
       error: ''
     })
@@ -68,19 +70,19 @@ const EditTrip = (props) => {
     const formData = new FormData();
     formData.append('tripNumber', tripNumber);
     formData.append('tripDate', tripDate);
+    formData.append('folderName', folderName.length > 0 ? folderName : new Date().getTime());
     if (pdfFiles) {
       pdfFiles.forEach(pdfFile => {
         formData.append('pdfFiles', pdfFile);
       })
     }
+    debugger
     formData.append('filesNames', filesNames);
     let currentTripState = {
       ...tripState, tripDate: (new Date(Date.now() - tzoffset)).toISOString()
     }
-    debugger
     // delete currentTripState.msg
     // dispatch(uploadFiles(formData))
-
 
     // do stuff - get passanger names from pdf files, get trip api from Kav system, save to db
     // dispatch(addFlight(currentTripState, formData))

@@ -4,6 +4,11 @@ const auth = require('../../middleware/auth');
 const config = require('config');
 const Files = require('../../models/Files');
 var AWS = require('aws-sdk');
+var http = require('http');
+const pdf = require('pdf-parse');
+var path = require('path');
+var fs = require('fs');
+
 // import { mainFunction } from '../utils';
 
 // @route   GET api/auth
@@ -24,49 +29,56 @@ router.get('/', auth, async (req, res) => {
 // @desc    Create or Update files flight
 // @access  Private
 router.post('/', async (req, res) => {
+    console.log('req.body: ', req.body)
+
     try {
         if (req.files === null || req.files.pdfFiles === null || req.files.pdfFiles.length === 0) {
             return res.status(400).json({ msg: 'No file uploaded' });
         }
-        // const s3 = new AWS.S3({
-        //     accessKeyId: config.get('accessKeyId'),
-        //     secretAccessKey: config.get('secretAccessKey'),
-        // });
+
+        let folderName = req.body.folderName
+        if (folderName.length === 0) { // if folderName not exist create date
+            folderName = new Date().getTime()
+        }
+        console.log('folderName: ', folderName)
         if (req.files.pdfFiles.length > 1) {
             var params = [];
+            const folderPath = `${__dirname}/${folderName}/pdf`;
+            const isExist = await exists(folderPath)
+
             req.files.pdfFiles.forEach(file => {
-                // Binary data base64
-                const fileContent = Buffer.from(file.data, 'binary');
-                // Setting up S3 upload parameters
-                params.push({
-                    Bucket: config.get('Bucket'),
-                    Key: file.name, // File name you want to save as in S3
-                    Body: fileContent
-                });
+                const uploadPath = `${folderPath}/${file.name}`;
+                console.log('uploadPath: ', uploadPath);
+                if (isExist) {
+                    file.mv(uploadPath, err => {
+                        if (err) {
+                            console.error(err);
+                            return res.status(500).send(err);
+                        }
+                        console.log('file uploaded: ', uploadPath);
+                    });
+                } else {
+                    fs.mkdir(folderPath, { recursive: true }, (err) => {
+                        if (err) throw err;
+                        file.mv(uploadPath, err => {
+                            if (err) {
+                                console.error(err);
+                                return res.status(500).send(err);
+                            }
+                            console.log('file uploaded: ', uploadPath);
+                        });
+                    });
+                }
+                console.log('params: ', params);
+                params.push({ uploadPath });
             });
-            const responses = await Promise.all(
-                // params.map(param => s3.upload(param).promise())
-            )
-            return res.status(200).json({ msg: 'File uploaded successfully', data: responses });
+            return res.status(200).json({ msg: 'File uploaded successfully', data: params });
         } else {
-            // Binary data base64
-            const fileContent = Buffer.from(req.files.pdfFiles.data, 'binary');
-
-            // Setting up S3 upload parameters
-            const params = {
-                Bucket: config.get('Bucket'),
-                Key: req.files.pdfFiles.name, // File name you want to save as in S3
-                Body: fileContent
-            };
-            // s3.upload(params, function (err, data) {
-            //     if (err) {
-            //         console.log(err)
-            //         console.log('params: ', params);
-            //         throw err;
-            //     }
-
-            //     return res.status(200).json({ msg: 'File uploaded successfully.', data: data });
-            // })
+            const uploadPath = `${__dirname}/${folderName}/pdf/${req.files.pdfFiles.name}`;
+            req.files.pdfFiles.mv(uploadPath, function (err) {
+                if (err) return res.status(500).send(err);
+            });
+            return res.status(200).json({ msg: 'File uploaded successfully', data: uploadPath });
         }
     }
     catch (err) {
@@ -82,11 +94,27 @@ router.post('/', async (req, res) => {
 router.get('/pdf-names', auth, async (req, res) => {
     try {
         console.log('req.query: ', req.query);
-        // const path = `${req.body.pdfFiles}`;
-        let test = await mainFunction('./pdfFiles');
-        // console.log('testtesttestt: ', test);
-        console.log('test123: ', test);
-        return res.status(200).json({ msg: 'the names from pdf are', data: test });
+
+        let initPassengersArr = await mainFunction('./pdfFiles');
+        createExcelFile('./pdfFiles', initPassengersArr, res);
+
+        res.download('file.xls'); // Set disposition and send it.
+
+        return res.status(200).json({ msg: 'the names from pdf are', data: initPassengersArr, pathToReport: 'file.xls' });
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+// @route   GET api/files/report
+// @desc    get names from files
+// @access  Public
+router.get('/report', auth, async (req, res) => {
+    try {
+        res.download(`file.xls`); // Set disposition and send it.
     }
     catch (err) {
         console.error(err.message);
@@ -99,9 +127,6 @@ router.get('/pdf-names', auth, async (req, res) => {
 
 // --- helpers ---
 const mainFunction = async (FILE_PATH) => {
-    var path = require('path');
-    var fs = require('fs');
-    const pdf = require('pdf-parse');
     if (!FILE_PATH) {
         console.log("No FILE_PATH, FILE_PATH: ", FILE_PATH);
     }
@@ -147,4 +172,31 @@ const mainFunction = async (FILE_PATH) => {
     }
 
 }
+
+const createExcelFile = async (FILE_PATH, test, res) => {
+    var writeStream = fs.createWriteStream("file.xls");
+    var header = "name" + "\t" + " isPaid" + "\t" + "isTicketSent" + "\t" + " isTicketSent" + "\t" + " ticketName" + "\t" + " relatedTo" + "\n";
+    writeStream.write(header);
+    for (let i = 0; i < test.length; i++) {
+        if (test[i]) {
+            var row = test[i].name + "\t" + test[i].isPaid + "\t" + test[i].isTicketSent + "\t" + test[i].ticketName.name + "\t" + test[i].relatedTo + "\n";
+            writeStream.write(row);
+        } else {
+            // console.log('test[i] is null: ', test[i]);
+            var row = 'there is no information' + "\n";
+            writeStream.write(row);
+        }
+    }
+}
+
+const exists = async (path) => {
+    try {
+        await Fs.access(path)
+        return true
+    } catch {
+        return false
+    }
+}
+
+
 module.exports = router;

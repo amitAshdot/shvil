@@ -26,11 +26,12 @@ const AddTrip = () => {
         tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
         pdfFiles: [],
         filesNames: [],
+        folderName: '',
         msg: '',
         error: '',
         dateFormatted: ''
     })
-    const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted } = tripState
+    const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted, folderName } = tripState
     //change input state
     const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
@@ -44,6 +45,7 @@ const AddTrip = () => {
             tripDate: '',
             pdfFiles: [],
             filesNames: [],
+            folderName: '',
             msg: '',
             error: ''
         })
@@ -54,6 +56,7 @@ const AddTrip = () => {
         const formData = new FormData();
         formData.append('tripNumber', tripNumber);
         formData.append('tripDate', tripDate);
+        formData.append('folderName', folderName.length > 0 ? folderName : new Date().getTime());
         if (pdfFiles) {
             pdfFiles.forEach(pdfFile => {
                 formData.append('pdfFiles', pdfFile);
@@ -62,7 +65,7 @@ const AddTrip = () => {
         formData.append('filesNames', filesNames);
         let currentTripState = { ...tripState }
         // delete currentTripState.msg
-        // dispatch(uploadFiles(formData))
+        dispatch(uploadFiles(formData))
 
 
         // do stuff - get passenger names from pdf files, get trip api from Kav system, save to db
