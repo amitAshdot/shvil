@@ -16,10 +16,6 @@ const AddTrip = () => {
     const dispatch = useDispatch();
     const authState = useSelector(state => state.auth);
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    console.log('tzoffset', tzoffset / 60000)
-    console.log('new Date(Date.now()): ', new Date(Date.now()))
-    console.log('newDate(Date.now())).toISOString(): ', (new Date(Date.now())).toISOString().slice(0, -1))
-    console.log('newDate(Date.now()-- tzoffset)).toISOString(): ', (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1))
 
     const [tripState, setTripState] = useState({
         tripNumber: '',

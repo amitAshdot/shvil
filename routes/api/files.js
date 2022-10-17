@@ -48,7 +48,8 @@ router.post('/', async (req, res) => {
 
             req.files.pdfFiles.forEach(file => {
                 const uploadPath = `${folderPath}/${file.name}`;
-                console.log('uploadPath: ', uploadPath);
+                console.log('uploadPath: ', uploadPath)
+                console.log('folderPath: ', folderPath)
                 if (isExist) {
                     file.mv(uploadPath, err => {
                         if (err) {

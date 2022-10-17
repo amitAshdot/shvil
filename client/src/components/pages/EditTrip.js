@@ -76,16 +76,10 @@ const EditTrip = (props) => {
         formData.append('pdfFiles', pdfFile);
       })
     }
-    debugger
     formData.append('filesNames', filesNames);
     let currentTripState = {
       ...tripState, tripDate: (new Date(Date.now() - tzoffset)).toISOString()
     }
-    // delete currentTripState.msg
-    // dispatch(uploadFiles(formData))
-
-    // do stuff - get passanger names from pdf files, get trip api from Kav system, save to db
-    // dispatch(addFlight(currentTripState, formData))
     dispatch(editFlight(currentTripState, formData))
   }
 

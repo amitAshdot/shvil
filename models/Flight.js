@@ -53,7 +53,7 @@ const FlightSchema = new mongoose.Schema({
     },
     folderName: {
         type: String,
-        default: new Date().getTime()
+        required: true
     }
 });
 

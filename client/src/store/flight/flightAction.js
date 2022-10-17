@@ -80,6 +80,8 @@ export const addFlight = (currentState, formData) => async dispatch => {
             currentState.pdfName = filesPath.filesNames;
             currentState.pdfFiles = filesPath.pdfFiles;
         }
+        currentState.folderName = formData.get('folderName');
+
         const res = await axios.post('/api/flight', currentState, config);
 
 
@@ -147,8 +149,8 @@ export const editFlight = (currentState, formData) => async dispatch => {
         debugger
         console.log('filesPath: ', filesPath)
         if (filesPath) {
-            currentState.pdfName = filesPath.filesNames;
-            currentState.pdfFiles = filesPath.pdfFiles;
+            currentState.pdfName = [...filesPath.filesNames, ...resExist.pdfName];
+            currentState.pdfFiles = [...filesPath.pdfFiles, ...resExist.pdfFiles];
         }
         resExist = { ...resExist, ...currentState };
 
@@ -206,9 +208,9 @@ export const uploadFiles = formData => async dispatch => {
             });
         } else {
             debugger
-            // finaleData.pdfFiles.push({
-            //     responseData.uploadPath
-            // });
+            finaleData.pdfFiles.push(responseData.uploadPath);
+            let fileName = responseData.uploadPath.split('/');
+            finaleData.filesNames.push(fileName[fileName.length - 1]);
         }
 
         dispatch({

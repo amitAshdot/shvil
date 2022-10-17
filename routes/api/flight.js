@@ -84,7 +84,7 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { tripNumber, pdfFiles, tripDate, passengers, filesNames, pdfName } = req.body;
+        const { tripNumber, pdfFiles, tripDate, passengers, filesNames, pdfName, folderName } = req.body;
         console.log("req.body: ", req.body);
         // Build flight object
         const flightFields = {};
@@ -95,7 +95,7 @@ router.post('/',
         if (filesNames) flightFields.filesNames = filesNames;
         if (pdfName) flightFields.pdfName = pdfName;
         if (tripDate) flightFields.tripDate = tripDate;
-
+        if (folderName) flightFields.folderName = folderName;
         try {
             let flight = new Flight(flightFields);
             await flight.save();
@@ -112,7 +112,7 @@ router.post('/',
 // @desc    Update flight
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
-    const { pdfFiles, tripDate, passengers, filesNames, _id, tripNumber, pdfName } = req.body;
+    const { pdfFiles, tripDate, passengers, filesNames, _id, tripNumber, pdfName, folderName } = req.body;
     // Build flight object
     const flightFields = {};
     flightFields.user = req.user.id;
@@ -122,6 +122,7 @@ router.put('/:id', auth, async (req, res) => {
     if (filesNames) flightFields.filesNames = filesNames;
     if (pdfName) flightFields.pdfName = pdfName;
     if (tripDate) flightFields.tripDate = tripDate;
+    if (folderName) flightFields.folderName = folderName;
 
     try {
         let flightByTripNumber = await Flight.findById(req.params.id);
