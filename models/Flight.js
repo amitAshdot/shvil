@@ -23,27 +23,29 @@ const FlightSchema = new mongoose.Schema({
         required: true
     },
     passengers: [{
+
         no: { // passenger number
             type: Number,
             required: true
         },
-        pdfName: {
+        name: {
             type: String,
             required: true
         },
-        name: {
-            type: String,
+        isPaid: {
+            type: Boolean,
+            default: false
+        },
+        ticketName: {
+            type: Object,
+            required: true
         },
         status: { // 0 = new, 1 = notSent, 2 = sentFullyPaid, 3 = sentNotPaid
             type: Number,
             default: 0
         },
-        haveRelated: {
-            type: Boolean,
-            default: false
-        },
-        related: { // passenger number
-            type: Number,
+        relatedTo: { // passenger number
+            type: [String],
             default: -1
         }
     }],
@@ -54,6 +56,9 @@ const FlightSchema = new mongoose.Schema({
     folderName: {
         type: String,
         required: true
+    },
+    pathToReport: {
+        type: String
     }
 });
 

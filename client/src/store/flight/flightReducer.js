@@ -8,7 +8,9 @@ import {
     CLEAR_FLIGHT,
     ADD_FILES,
     GET_PDF_NAMES,
-    LOADING_START
+    LOADING_START,
+    DONE_UPLOADING,
+    START_UPLOADING
 } from './flightTypes';
 
 const initialState = {
@@ -18,40 +20,21 @@ const initialState = {
     tripNumber: "",
     filesNames: [],
     pdfFiles: [],
-    passengers: [
-        {
-            no: 0,
-            pdfName: "",
-            name: "",
-            status: 0,
-            haveRelated: false,
-            related: -1
-        },
-        {
-            no: 1,
-            pdfName: "",
-            name: "",
-            status: 0,
-            haveRelated: false,
-            related: -1
-        },
-        {
-            no: 2,
-            pdfName: "",
-            name: "moshe choen",
-            status: 0,
-            haveRelated: false,
-            related: -1
-        }
-    ],
+    passengers: [],
     flight: {},
-    tripDate: ""
+    tripDate: "",
+    doneUpload: false
 }
 
 export default function flightReducer(state = initialState, action) {
     const { type, payload } = action;
 
     switch (type) {
+        case START_UPLOADING:
+            return {
+                ...state,
+                startUpload: true
+            }
         case GET_FLIGHTS:
             return {
                 ...state,
@@ -78,7 +61,7 @@ export default function flightReducer(state = initialState, action) {
             return {
                 ...state,
                 ...payload,
-                loading: false
+                loading: false,
             };
 
         case EDIT_FLIGHT:
@@ -102,10 +85,24 @@ export default function flightReducer(state = initialState, action) {
             };
         case CLEAR_FLIGHT:
             return {
-                ...state,
-                flight: null,
-                loading: false
+                loading: false,
+                error: {},
+                expire_at: {},
+                tripNumber: "",
+                filesNames: [],
+                pdfFiles: [],
+                passengers: [],
+                flight: {},
+                tripDate: "",
+                doneUpload: false
             };
+        case DONE_UPLOADING:
+            return {
+                ...state,
+                loading: false,
+                doneUpload: true
+            };
+
         case GET_PDF_NAMES:
             return {
                 ...state,

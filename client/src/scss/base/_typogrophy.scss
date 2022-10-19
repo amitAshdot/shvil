@@ -34,9 +34,12 @@ body {
 
 img {
   font-size: 1rem;
+  line-height: 1rem;
 
   @include respond(tab-port) {
     font-size: 3rem;
+
+    line-height: 3rem;
   }
 }
 
@@ -49,10 +52,12 @@ h4 {
 
 h1 {
   font-size: 2.7rem;
+  line-height: 2.7rem;
 }
 
 h2 {
   font-size: 1.45rem;
+  line-height: 1.45rem;
 }
 
 h3 {
@@ -79,6 +84,7 @@ p {
 
   @include respond(tab-port) {
     font-size: 3rem;
+    line-height: 3rem;
   }
 
   a {

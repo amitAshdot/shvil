@@ -74,6 +74,7 @@ body {
   /* set the box size in all elements to border-box thanks to *{} */
   position: relative;
   box-sizing: border-box;
+  width: 100vw;
   max-width: 1920px;
   margin-inline: auto;
   display: flex;
@@ -87,6 +88,10 @@ body {
     // padding: 0;
     flex-direction: column;
   }
+}
+
+#root {
+  width: 100%;
 }
 
 ::selection {

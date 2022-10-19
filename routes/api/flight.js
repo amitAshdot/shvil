@@ -28,9 +28,6 @@ router.get('/me', auth, async (req, res) => {
 // @access  public
 router.get('/:id', async (req, res) => {
     const { tripNumber } = req.params;
-    console.log("req.params: ", tripNumber);
-    console.log("req.body: ", req.body);
-
     try {
         const flight = await Flight.findById(req.params.id);
         // let flight = await Flight.findOne({ tripNumber: tripNumber.toUpperCase() });
@@ -85,7 +82,6 @@ router.post('/',
         }
 
         const { tripNumber, pdfFiles, tripDate, passengers, filesNames, pdfName, folderName } = req.body;
-        console.log("req.body: ", req.body);
         // Build flight object
         const flightFields = {};
         flightFields.user = req.user.id;

@@ -49,9 +49,9 @@ const EditTrip = (props) => {
   //change input state
   const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
-  const filesToShow = filesNames.map((file, index) => {
+  const filesToShow = flightState ? flightState.pdfName.length > 0 ? flightState.pdfName.map((file, index) => {
     return <li key={index} className="files-file">{file}</li>
-  });
+  }) : null : null;
 
   const handleReset = () => {
     setTripState({
@@ -135,7 +135,7 @@ const EditTrip = (props) => {
             <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
 
             <div className="files-status">
-              {filesNames.length > 0 ? <ul>{filesToShow}</ul> : null}
+              {filesToShow.length > 0 ? <ul>{filesToShow}</ul> : null}
             </div>
           </div>
           {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}

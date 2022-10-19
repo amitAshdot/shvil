@@ -8,7 +8,9 @@ import {
     CLEAR_FLIGHT,
     ADD_FILES,
     GET_PDF_NAMES,
-    LOADING_START
+    LOADING_START,
+    DONE_UPLOADING,
+    START_UPLOADING
 } from './flightTypes';
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
@@ -66,6 +68,9 @@ export const addFlight = (currentState, formData) => async dispatch => {
     };
     try {
         dispatch({
+            type: START_UPLOADING
+        })
+        dispatch({
             type: LOADING_START
         })
         const resExist = await dispatch(getFlight(currentState._id));
@@ -73,7 +78,8 @@ export const addFlight = (currentState, formData) => async dispatch => {
             dispatch(setAlert('החופשה קיימת, כנס/י לעמוד עריכה', 'danger'));
             return;
         }
-
+        //console files from form data
+        // FILES
         const filesPath = await dispatch(uploadFiles(formData))//upload files to server
 
         if (filesPath) {
@@ -82,20 +88,41 @@ export const addFlight = (currentState, formData) => async dispatch => {
         }
         currentState.folderName = formData.get('folderName');
 
-        const res = await axios.post('/api/flight', currentState, config);
+        //get names of pdf files
+        const res = await axios.post('api/files/pdf-names', currentState, config);
+        currentState.passengers = res.data.data;
+        currentState.pathToReport = res.data.pathToReport;
 
+        // KAV
+        //*****const kavData = await getKavDataByTripNumber(currentState.tripNumber);
+
+        //check related passengers
+        //****const tempListOfPassengers = crossInformationBetweenKavAndUser(kavData, currentState.passengers);
+
+        //send mail to user
+        //****await sendUserMail(currentState);
+
+        const addFlightRes = await axios.post('/api/flight', currentState, config);
 
         if (filesPath.pdfFiles)
-            res.data.pdfFiles = filesPath.pdfFiles;
+            addFlightRes.data.pdfFiles = filesPath.pdfFiles;
 
         if (filesPath.filesNames)
-            res.data.pdfName = filesPath.filesNames;
-        dispatch({
+            addFlightRes.data.pdfName = filesPath.filesNames;
+        await dispatch({
             type: ADD_FLIGHT,
-            payload: res.data
+            payload: addFlightRes.data
+        });
+        await dispatch(setAlert('Flight Created', 'success'));
+
+        await dispatch({
+            type: DONE_UPLOADING,
         });
 
-        dispatch(setAlert('Flight Created', 'success'));
+        await dispatch({
+            type: CLEAR_FLIGHT
+        });
+
     } catch (err) {
         const errors = err.response.msg;
         if (errors) {
@@ -146,8 +173,6 @@ export const editFlight = (currentState, formData) => async dispatch => {
         // await dispatch(uploadFiles(formData))
 
         const filesPath = await dispatch(uploadFiles(formData))//upload files to server
-        debugger
-        console.log('filesPath: ', filesPath)
         if (filesPath) {
             currentState.pdfName = [...filesPath.filesNames, ...resExist.pdfName];
             currentState.pdfFiles = [...filesPath.pdfFiles, ...resExist.pdfFiles];
@@ -195,7 +220,7 @@ export const uploadFiles = formData => async dispatch => {
             }
         };
 
-
+        debugger
         const res = await axios.post(`/api/files`, formData, config);
         let responseData = res.data.data;
         let finaleData = { pdfFiles: [], filesNames: [] };
@@ -207,17 +232,16 @@ export const uploadFiles = formData => async dispatch => {
                 finaleData.filesNames.push(fileName[fileName.length - 1]);
             });
         } else {
-            debugger
-            finaleData.pdfFiles.push(responseData.uploadPath);
-            let fileName = responseData.uploadPath.split('/');
+            finaleData.pdfFiles.push(responseData);
+            let fileName = responseData.split('/');
             finaleData.filesNames.push(fileName[fileName.length - 1]);
         }
 
-        dispatch({
+        await dispatch({
             type: ADD_FILES,
             payload: finaleData
         });
-        dispatch(setAlert('Files Uploaded', 'success'));
+        await dispatch(setAlert('Files Uploaded', 'success'));
         return finaleData;
     }
     catch (err) {
@@ -259,7 +283,7 @@ export const getNameFromPdf = (pdfFiles) => async dispatch => {
 }
 
 export const downloadReport = (folderPath) => async dispatch => {
-
+    console.log('here!!!')
     const config = {
         headers: {
             'Content-Type': 'application/json',
@@ -292,6 +316,7 @@ export const downloadReport = (folderPath) => async dispatch => {
         //     type: DOWNLOAD_REPORT,
         //     payload: res.data.data
         // });
+        return res.data;
     } catch (err) {
         console.log(err)
     }
@@ -340,6 +365,15 @@ const getKavDataByTripNumber = async (tripNumber) => {
 
 // export const getFlights = () => async dispatch => {
 
+const crossInformationBetweenKavAndUser = async (kavData, userFlightData) => {
+    if (!kavData) return userFlightData;
+    if (!userFlightData) return kavData;
+
+    let kavDataCopy = JSON.parse(JSON.stringify(kavData));
+    let userFlightDataCopy = JSON.parse(JSON.stringify(userFlightData));
+
+
+}
 
 
 const sendUserMail = async (user) => {

@@ -29,8 +29,6 @@ router.get('/', auth, async (req, res) => {
 // @desc    Create or Update files flight
 // @access  Private
 router.post('/', async (req, res) => {
-    console.log('req.body: ', req.body)
-
     try {
         if (req.files === null || req.files.pdfFiles === null || req.files.pdfFiles.length === 0) {
             return res.status(400).json({ msg: 'No file uploaded' });
@@ -40,7 +38,6 @@ router.post('/', async (req, res) => {
         if (folderName.length === 0) { // if folderName not exist create date
             folderName = new Date().getTime()
         }
-        console.log('folderName: ', folderName)
         if (req.files.pdfFiles.length > 1) {
             var params = [];
             const folderPath = `${__dirname}/${folderName}/pdf`;
@@ -48,15 +45,12 @@ router.post('/', async (req, res) => {
 
             req.files.pdfFiles.forEach(file => {
                 const uploadPath = `${folderPath}/${file.name}`;
-                console.log('uploadPath: ', uploadPath)
-                console.log('folderPath: ', folderPath)
                 if (isExist) {
                     file.mv(uploadPath, err => {
                         if (err) {
                             console.error(err);
                             return res.status(500).send(err);
                         }
-                        console.log('file uploaded: ', uploadPath);
                     });
                 } else {
                     fs.mkdir(folderPath, { recursive: true }, (err) => {
@@ -66,20 +60,37 @@ router.post('/', async (req, res) => {
                                 console.error(err);
                                 return res.status(500).send(err);
                             }
-                            console.log('file uploaded: ', uploadPath);
                         });
                     });
                 }
-                console.log('params: ', params);
                 params.push({ uploadPath });
             });
             return res.status(200).json({ msg: 'File uploaded successfully', data: params });
         } else {
-            const uploadPath = `${__dirname}/${folderName}/pdf/${req.files.pdfFiles.name}`;
-            req.files.pdfFiles.mv(uploadPath, function (err) {
-                if (err) return res.status(500).send(err);
-            });
-            return res.status(200).json({ msg: 'File uploaded successfully', data: uploadPath });
+            var params = [];
+            const folderPath = `${__dirname}/${folderName}/pdf`;
+            const isExist = await exists(folderPath)
+            const uploadPath = `${folderPath}/${req.files.pdfFiles.name}`;
+            if (isExist) {
+                req.files.pdfFiles.mv(uploadPath, err => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).send(err);
+                    }
+                });
+            } else {
+                fs.mkdir(folderPath, { recursive: true }, (err) => {
+                    if (err) throw err;
+                    req.files.pdfFiles.mv(uploadPath, err => {
+                        if (err) {
+                            console.error(err);
+                            return res.status(500).send(err);
+                        }
+                    });
+                });
+            }
+            params.push({ uploadPath });
+            return res.status(200).json({ msg: 'File uploaded successfully', data: params });
         }
     }
     catch (err) {
@@ -92,16 +103,14 @@ router.post('/', async (req, res) => {
 // @route   GET api/files/pdf-names
 // @desc    get names from files
 // @access  Public
-router.get('/pdf-names', auth, async (req, res) => {
+router.post('/pdf-names', auth, async (req, res) => {
     try {
-        console.log('req.query: ', req.query);
-
-        let initPassengersArr = await mainFunction('./pdfFiles');
-        createExcelFile('./pdfFiles', initPassengersArr, res);
-
-        res.download('file.xls'); // Set disposition and send it.
-
-        return res.status(200).json({ msg: 'the names from pdf are', data: initPassengersArr, pathToReport: 'file.xls' });
+        const { folderName } = req.body;
+        let initPassengersArr = await mainFunction(`${__dirname}/${folderName}/pdf`);
+        const FILE_PATH = `${__dirname}/${folderName}`;
+        createExcelFile(FILE_PATH, initPassengersArr, res);
+        // res.download('file.xls'); // Set disposition and send it.
+        return res.status(200).json({ msg: 'the names from pdf are', data: initPassengersArr, pathToReport: FILE_PATH + '/file.xls' });
     }
     catch (err) {
         console.error(err.message);
@@ -142,7 +151,6 @@ const mainFunction = async (FILE_PATH) => {
         const targetFiles = files.filter(file => {
             return path.extname(file.name).toLowerCase() === EXTENSION;
         });
-
         // Basic Usage
         let allFilePromises = targetFiles.map(file => {
             if (fs.existsSync(`${FILE_PATH}/${file.name}`)) {
@@ -155,14 +163,48 @@ const mainFunction = async (FILE_PATH) => {
                         if (match != null) {
                             name = match[1];
                             name = name.replace(/([A-Z])/g, ' $1').trim();
-                            peopleObjectArr.push({ name: name, isPaid: false, isTicketSent: false, ticketName: file });
-                            return { name: name, isPaid: false, isTicketSent: false, ticketName: file, relatedTo: null };
+                            peopleObjectArr.push({ no: peopleObjectArr.length, name: name, isPaid: false, status: 0, ticketName: file, relatedTo: '' });
+                            return { no: peopleObjectArr.length, name: name, isPaid: false, status: 0, ticketName: file, relatedTo: '' };
+                        } else {
+                            //Royal Caribbean
+                            var reName = /PREPAID GRATUITIES.*?CRUISE SUMMARY/gms;
+                            var name = "";
+                            let match = reName.exec(data.text);
+
+                            if (match != null) {
+                                let names = match[0].split('\n')
+                                names.shift();//deleting unnecessary first row 
+                                names.pop(); //delete unnecessary empty row
+                                names.pop();//deleting unnecessary last roq
+                                names = names.map(name => {
+                                    // name = name.replace(/([A-Z])/g, ' $1').trim();
+                                    return name.replace(/((_\s+)+_)|(No)/mg, '')
+                                });
+                                peopleObjectArr.push({ no: peopleObjectArr.length, name: names[0], isPaid: false, status: 0, ticketName: file, relatedTo: names });
+                                return { no: peopleObjectArr.length, name: names[0], isPaid: false, status: 0, ticketName: file, relatedTo: names };
+
+                            } else {
+                                //MSC
+                                var reName = /CRUISE  TICKET.*?Ship/gms;
+                                var name = "";
+                                let match = reName.exec(data.text);
+                                if (match != null) {
+                                    let names = match[0].split('\n')
+                                    names.shift();//deleting unnecessary first row 
+                                    names.shift();//deleting unnecessary first row 
+                                    names.pop();//deleting unnecessary last roq
+                                    peopleObjectArr.push({ no: peopleObjectArr.length, name: names[0], isPaid: false, status: 0, ticketName: file, relatedTo: names });
+                                    return { no: peopleObjectArr.length, name: names[0], isPaid: false, status: false, ticketName: file, relatedTo: names };
+                                }
+                            }
                         }
                     })
                     .catch(function (error) {
                         console.log('error pad-parse: ', error)
                     });
                 return filePromise;
+            } else {
+                return null;
             }
 
         });
@@ -174,25 +216,33 @@ const mainFunction = async (FILE_PATH) => {
 
 }
 
-const createExcelFile = async (FILE_PATH, test, res) => {
-    var writeStream = fs.createWriteStream("file.xls");
-    var header = "name" + "\t" + " isPaid" + "\t" + "isTicketSent" + "\t" + " isTicketSent" + "\t" + " ticketName" + "\t" + " relatedTo" + "\n";
+const createExcelFile = async (FILE_PATH, initPassengersArr, res) => {
+    var writeStream = fs.createWriteStream(`${FILE_PATH}/report.xls`);
+    var header = "שם" + "\t" + "בוצע תשלום מלא" + "\t" + "סטאטוס שליחת כרטיס" + "\t" + " שם הקובץ" + "\t" + "נוסע/ת עם" + "\n";
     writeStream.write(header);
-    for (let i = 0; i < test.length; i++) {
-        if (test[i]) {
-            var row = test[i].name + "\t" + test[i].isPaid + "\t" + test[i].isTicketSent + "\t" + test[i].ticketName.name + "\t" + test[i].relatedTo + "\n";
-            writeStream.write(row);
-        } else {
-            // console.log('test[i] is null: ', test[i]);
-            var row = 'there is no information' + "\n";
-            writeStream.write(row);
+    if (initPassengersArr) {
+        for (let i = 0; i < initPassengersArr.length; i++) {
+            if (initPassengersArr[i]) {
+                const { name, isPaid, status, ticketName, relatedTo } = initPassengersArr[i];
+                const statusWords = ['חדש', 'לא נשלח', 'כרטיס נשלח', 'נשלח מייל לתשלום']
+                const convertStatusToWord = statusWords[status]
+                const convertIsPaidToWord = isPaid ? 'שולם' : 'לא שולם'
+                const relatedToNames = relatedTo ? relatedTo.join(',') : 'נוסע לבד'
+
+                var row = name + "\t" + convertIsPaidToWord + "\t" + convertStatusToWord + "\t" + ticketName.name + "\t" + relatedToNames + "\n";
+                writeStream.write(row);
+            } else {
+                console.log('initPassengersArr[i] is null: ', initPassengersArr[i]);
+                var row = 'there is no information' + "\n";
+                writeStream.write(row);
+            }
         }
     }
 }
 
 const exists = async (path) => {
     try {
-        await Fs.access(path)
+        await fs.access(path)
         return true
     } catch {
         return false

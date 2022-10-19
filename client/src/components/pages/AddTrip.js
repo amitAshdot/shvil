@@ -6,17 +6,52 @@ import Dropzone from 'react-dropzone'
 import XInsideSolidCircle from '../icons/XInsideSolidCircle.js'
 import PlusInCircle from '../icons/PlusInCircle.js'
 import { useDispatch, useSelector } from 'react-redux'
-import { addFlight, uploadFiles } from '../../store/flight/flightAction'
+import { addFlight, uploadFiles, downloadReport } from '../../store/flight/flightAction'
 // import PdfTest from '../layout/PdfTest'
-import { Navigate } from 'react-router-dom';
 import moment from 'moment';
-
+import { Navigate } from 'react-router-dom';
+import UploadingAnimation from '../layout/UploadingAnimation'
+import Alert from '../layout/Alert'
 const AddTrip = () => {
 
     const dispatch = useDispatch();
     const authState = useSelector(state => state.auth);
+    const flightState = useSelector(state => state.flight);
+    const alertState = useSelector(state => state.alert);
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
 
+    useEffect(() => {
+        if (flightState.doneUpload) {
+            setTripState({
+                tripNumber: '',
+                tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
+                pdfFiles: [],
+                filesNames: [],
+                folderName: '',
+                msg: '',
+                error: '',
+                dateFormatted: '',
+                uploadEnd: false
+            })
+        }
+    }, [flightState.doneUpload, tzoffset, dispatch])
+
+    useEffect(() => {
+        if (flightState.startUpload) {
+            setTripState({
+                tripNumber: '',
+                tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
+                pdfFiles: [],
+                filesNames: [],
+                folderName: '',
+                msg: '',
+                error: '',
+                dateFormatted: '',
+                uploadEnd: false,
+                startUpload: true
+            })
+        }
+    }, [flightState.startUpload, tzoffset, dispatch])
     const [tripState, setTripState] = useState({
         tripNumber: '',
         tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
@@ -25,15 +60,16 @@ const AddTrip = () => {
         folderName: '',
         msg: '',
         error: '',
-        dateFormatted: ''
+        dateFormatted: '',
+        uploadEnd: false
     })
     const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted, folderName } = tripState
     //change input state
     const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
-    const filesToShow = filesNames.map((file, index) => {
+    const filesToShow = filesNames ? filesNames.map((file, index) => {
         return <li key={index} className="files-file">{file}</li>
-    });
+    }) : null;
 
     const handleReset = () => {
         setTripState({
@@ -43,7 +79,9 @@ const AddTrip = () => {
             filesNames: [],
             folderName: '',
             msg: '',
-            error: ''
+            error: '',
+            dateFormatted: '',
+            uploadEnd: false
         })
     }
 
@@ -60,10 +98,7 @@ const AddTrip = () => {
         }
         formData.append('filesNames', filesNames);
         let currentTripState = { ...tripState }
-        // delete currentTripState.msg
-        dispatch(uploadFiles(formData))
-
-
+        // dispatch(uploadFiles(formData))
         // do stuff - get passenger names from pdf files, get trip api from Kav system, save to db
         dispatch(addFlight(currentTripState, formData))
     }
@@ -81,8 +116,9 @@ const AddTrip = () => {
                 accumulator.push(current);
             return accumulator;
         }, []);
+        const concatFileNames = [...filesNames, ...newPdfFiles.map(file => file.name)]
+        const newFilesNames = [...new Set(concatFileNames)];
 
-        const newFilesNames = [...new Set(filesNames)];
         setTripState({
             ...tripState,
             filesNames: newFilesNames,
@@ -93,14 +129,14 @@ const AddTrip = () => {
     if (!authState.isAuthenticated) {
         return <Navigate to='/login' />
     }
+    // if (flightState.startUpload) {
+    //     return <UploadingAnimation />
+    // }
     return (
         <div className="add-trip-container">
             <form onSubmit={onSubmit}>
                 <div className="right">
-                    <picture>
-                        <source media="(max-width: 1025px)" srcSet={folderImage} defer width="110" height="42" />
-                        <img defer src={folderImage} alt="תיקיות" title="תיקיות" className="logo" width="320" height="236.812" />
-                    </picture>
+                    <UploadingAnimation startUpload={flightState.startUpload} />
                     <div className="input-container">
                         <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
                         <label htmlFor="email" className="label-name"> מספר טיול</label>
@@ -117,7 +153,7 @@ const AddTrip = () => {
                     <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
 
                     <div className="files-status">
-                        {filesNames.length > 0 ? <ul>{filesToShow}</ul> : null}
+                        {filesToShow.length > 0 ? <ul>{filesToShow}</ul> : null}
                     </div>
                 </div>
                 {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
@@ -144,6 +180,7 @@ const AddTrip = () => {
 
                 {/* {tripState.msg ? <p>{tripState.msg}</p> : null} */}
                 {/* {tripState.error ? <p>{tripState.error}</p> : null} */}
+                <Alert />
             </form>
         </div>
     )

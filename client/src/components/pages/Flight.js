@@ -17,9 +17,10 @@ const Flight = (props) => {
 
     useEffect(() => {
 
-        const onload = () => {
-            let t = dispatch(getNameFromPdf())
-            const currentFlight = dispatch(getFlight(id))
+        const onload = async () => {
+            let pdfResults = await dispatch(getNameFromPdf())
+            const currentFlight = await dispatch(getFlight(id))
+
             const newStateObject = {
                 tripDate: currentFlight.tripDate,
                 tripNumber: currentFlight.tripNumber,
@@ -28,7 +29,8 @@ const Flight = (props) => {
                 date: currentFlight.date,
                 msg: '',
                 error: '',
-                nnnn: t
+                passengersObject: pdfResults.data,
+                reportName: pdfResults.pathToReport
             }
             setTripState({
                 ...newStateObject

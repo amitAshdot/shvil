@@ -13,7 +13,7 @@ const Landing = () => {
 
     useEffect(() => {
         dispatch(getFlights())
-        dispatch(downloadReport())
+        // dispatch(downloadReport())
         return () => {
             // cleanup
         }
@@ -26,7 +26,8 @@ const Landing = () => {
         filesNames: [],
         searchArr: [],
         msg: '',
-        error: ''
+        error: '',
+        dateFormatted: ''
     })
     const { searchInput, searchArr } = tripState
 
@@ -40,6 +41,16 @@ const Landing = () => {
             searchArr,
             searchInput: e.target.value
         })
+    }
+
+
+    const formatDate = (date) => {
+        if (flightState.date) {
+            const date = flightState.tripDate.slice(0, 10)
+            const time = flightState.tripDate.slice(11, 16)
+            const dateFormatted = [date, time]
+            return dateFormatted
+        }
     }
 
     if (!authState.isAuthenticated) {
@@ -60,12 +71,14 @@ const Landing = () => {
                         {isFlights ?
                             searchArr.length > 0 ?
                                 searchArr.map((flight, index) => {
-                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
+                                    const dateFormatted = formatDate(flight.tripDate)
+                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} dateFormatted={dateFormatted} />
                                 }
                                 )
                                 :
                                 flightState.flights.map((flight, index) => {
-                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} />
+                                    const dateFormatted = formatDate(flight.tripDate)
+                                    return <FlightCard key={index} index={index} tripNumber={flight.tripNumber} tripDate={flight.tripDate} _id={flight._id} dateFormatted={dateFormatted} />
                                 }
                                 )
                             :
