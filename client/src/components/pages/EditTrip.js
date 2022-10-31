@@ -39,26 +39,25 @@ const EditTrip = (props) => {
     tripNumber: '',
     tripDate: '',
     pdfFiles: [],
-    filesNames: [],
+    pdfName: [],
     folderName: '',
     msg: '',
     error: '',
     dateFormatted: ''
   })
-  const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted, folderName } = tripState
+  const { tripNumber, tripDate, pdfName, pdfFiles, dateFormatted, folderName } = tripState
   //change input state
   const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
-
-  const filesToShow = flightState ? flightState.pdfName.length > 0 ? flightState.pdfName.map((file, index) => {
+  const filesToShow = flightState?.pdfName?.length > 0 ? flightState.pdfName.map((file, index) => {
     return <li key={index} className="files-file">{file}</li>
-  }) : null : null;
+  }) : null;
 
   const handleReset = () => {
     setTripState({
       tripNumber: '',
       tripDate: '',
       pdfFiles: [],
-      filesNames: [],
+      pdfName: [],
       folderName: '',
       msg: '',
       error: ''
@@ -70,13 +69,14 @@ const EditTrip = (props) => {
     const formData = new FormData();
     formData.append('tripNumber', tripNumber);
     formData.append('tripDate', tripDate);
-    formData.append('folderName', folderName.length > 0 ? folderName : new Date().getTime());
+    if (folderName?.length > 0)
+      formData.append('folderName', folderName.length > 0 ? folderName : new Date().getTime());
     if (pdfFiles) {
       pdfFiles.forEach(pdfFile => {
         formData.append('pdfFiles', pdfFile);
       })
     }
-    formData.append('filesNames', filesNames);
+    formData.append('pdfName', pdfName);
     let currentTripState = {
       ...tripState, tripDate: (new Date(Date.now() - tzoffset)).toISOString()
     }
@@ -86,10 +86,10 @@ const EditTrip = (props) => {
   const onDrop = (newPdfFiles) => {
     Array.from(pdfFiles).forEach(file => {
       console.log(file)
-      filesNames.push(file.name)
+      pdfName.push(file.name)
     })
     let newPdfState = [...pdfFiles, ...newPdfFiles]
-    // const newPdfNames = [...filesNames, ...newPdfFiles.map(file => file.name)]
+    // const newPdfNames = [...pdfName, ...newPdfFiles.map(file => file.name)]
 
     newPdfState = newPdfState.reduce((accumulator, current) => {
       if (!accumulator.some((item) => item.name === current.name))
@@ -97,10 +97,10 @@ const EditTrip = (props) => {
       return accumulator;
     }, []);
 
-    const newFilesNames = [...new Set(filesNames)];
+    const newpdfName = [...new Set(pdfName)];
     setTripState({
       ...tripState,
-      filesNames: newFilesNames,
+      pdfName: newpdfName,
       pdfFiles: newPdfState
     })
   }
@@ -135,7 +135,7 @@ const EditTrip = (props) => {
             <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
 
             <div className="files-status">
-              {filesToShow.length > 0 ? <ul>{filesToShow}</ul> : null}
+              {filesToShow?.length > 0 ? <ul>{filesToShow}</ul> : null}
             </div>
           </div>
           {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}

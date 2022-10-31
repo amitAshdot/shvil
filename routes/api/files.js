@@ -3,21 +3,22 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const config = require('config');
 const Files = require('../../models/Files');
-var AWS = require('aws-sdk');
+// var AWS = require('aws-sdk');
 var http = require('http');
 const pdf = require('pdf-parse');
 var path = require('path');
 var fs = require('fs');
 
-// import { mainFunction } from '../utils';
+// import { mainFunction, checkForRelatedPassengers } from '../utils';
 
 // @route   GET api/auth
 // @desc    Test route
 // @access  Public
 router.get('/', auth, async (req, res) => {
     try {
-        const files = await Files.find().sort({ date: -1 });
-        console.log(files);
+        // const files = await Files.find().sort({ date: -1 });
+        let t = await mainFunction(`${__dirname}/1666620094605/pdf`)
+        return res.status(200).json({ msg: 'File uploaded successfully', data: t });
     }
     catch (err) {
         console.error(err.message);
@@ -122,9 +123,10 @@ router.post('/pdf-names', auth, async (req, res) => {
 // @route   GET api/files/report
 // @desc    get names from files
 // @access  Public
-router.get('/report', auth, async (req, res) => {
+router.post('/report', auth, async (req, res) => {
+    console.log(req.body);
     try {
-        res.download(`file.xls`); // Set disposition and send it.
+        res.download(req.body.folderPath); // Set disposition and send it.
     }
     catch (err) {
         console.error(err.message);
@@ -208,7 +210,11 @@ const mainFunction = async (FILE_PATH) => {
             }
 
         });
+
         let allPeopleObjectArr = await Promise.all(allFilePromises);
+
+        let test = await checkForRelatedPassengers(allPeopleObjectArr);
+
         return allPeopleObjectArr;
     } catch (err) {
         console.log(err)
@@ -232,7 +238,6 @@ const createExcelFile = async (FILE_PATH, initPassengersArr, res) => {
                 var row = name + "\t" + convertIsPaidToWord + "\t" + convertStatusToWord + "\t" + ticketName.name + "\t" + relatedToNames + "\n";
                 writeStream.write(row);
             } else {
-                console.log('initPassengersArr[i] is null: ', initPassengersArr[i]);
                 var row = 'there is no information' + "\n";
                 writeStream.write(row);
             }
@@ -247,6 +252,44 @@ const exists = async (path) => {
     } catch {
         return false
     }
+}
+
+const checkForRelatedPassengers = (allPeopleObjectArr) => {
+    //check if there are related passengers
+    //if there are related passengers, add them to the same object
+    //if there are no related passengers, return the object as is
+    //return an array of objects
+
+    //EXAMPLE:
+    // allPeopleObjectArr = [
+    //     {name: "Levy Amit", isPaid: false, isTicketSent: false, ticketName: "file1.pdf"},
+    //     {name: "Levy Yotam", isPaid: false, isTicketSent: false, ticketName: "file2.pdf"},
+    //     {name: "Ashdot Amit", isPaid: false, isTicketSent: false, ticketName: "file3.pdf"},
+    //     {name: "Ashton Ayelet", isPaid: false, isTicketSent: false, ticketName: "file4.pdf"},
+    //  ]
+    let test = allPeopleObjectArr.map(person => {
+        if (!person) return null;
+        if (person.relatedTo.length > 0) return person;
+
+        let relatedPassengersArr = [];
+        let singleNameArr = person.name.split(" ");
+
+
+        for (let i = 0; i < allPeopleObjectArr.length; i++) {
+            const tempComparedPerson = allPeopleObjectArr[i];
+            if (!tempComparedPerson) continue; //if there is no element, continue to the next iteration
+            if (allPeopleObjectArr[i].name.includes(singleNameArr[0])) {
+                if (allPeopleObjectArr[i].name === person.name) continue;
+
+                relatedPassengersArr.push(tempComparedPerson.name);
+            }
+        }
+
+        person.relatedTo = relatedPassengersArr;
+        return person;
+    });
+
+    return test;
 }
 
 

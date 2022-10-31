@@ -9,6 +9,7 @@ import {
     ADD_FILES,
     GET_PDF_NAMES,
     LOADING_START,
+    LOADING_END,
     DONE_UPLOADING,
     START_UPLOADING
 } from './flightTypes';
@@ -20,6 +21,19 @@ import { xml2json, json2xml } from "xml-js";
 import allTripInfoMock from '../../mock/allTripInfoMock.js'
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
+export const setCurrentFlight = (flight) => async dispatch => {
+    try {
+        dispatch({
+            type: GET_FLIGHT,
+            payload: flight
+        })
+    } catch (err) {
+        dispatch({
+            type: FLIGHT_ERROR,
+            payload: { msg: err.response.statusText, status: err.response.status }
+        })
+    }
+}
 
 export const getFlights = () => async dispatch => {
     try {
@@ -67,12 +81,8 @@ export const addFlight = (currentState, formData) => async dispatch => {
         }
     };
     try {
-        dispatch({
-            type: START_UPLOADING
-        })
-        dispatch({
-            type: LOADING_START
-        })
+        dispatch({ type: START_UPLOADING });
+        dispatch({ type: LOADING_START });
         const resExist = await dispatch(getFlight(currentState._id));
         if (resExist) {
             dispatch(setAlert('החופשה קיימת, כנס/י לעמוד עריכה', 'danger'));
@@ -92,6 +102,10 @@ export const addFlight = (currentState, formData) => async dispatch => {
         const res = await axios.post('api/files/pdf-names', currentState, config);
         currentState.passengers = res.data.data;
         currentState.pathToReport = res.data.pathToReport;
+
+
+        //get related passengers 
+        // const relatedPassengers = checkForRelatedPassengers(currentState.passengers);
 
         // KAV
         //*****const kavData = await getKavDataByTripNumber(currentState.tripNumber);
@@ -115,13 +129,8 @@ export const addFlight = (currentState, formData) => async dispatch => {
         });
         await dispatch(setAlert('Flight Created', 'success'));
 
-        await dispatch({
-            type: DONE_UPLOADING,
-        });
-
-        await dispatch({
-            type: CLEAR_FLIGHT
-        });
+        await dispatch({ type: DONE_UPLOADING, });
+        await dispatch({ type: CLEAR_FLIGHT });
 
     } catch (err) {
         const errors = err.response.msg;
@@ -220,7 +229,6 @@ export const uploadFiles = formData => async dispatch => {
             }
         };
 
-        debugger
         const res = await axios.post(`/api/files`, formData, config);
         let responseData = res.data.data;
         let finaleData = { pdfFiles: [], filesNames: [] };
@@ -283,24 +291,24 @@ export const getNameFromPdf = (pdfFiles) => async dispatch => {
 }
 
 export const downloadReport = (folderPath) => async dispatch => {
-    console.log('here!!!')
+    // console.log('here!!!')
     const config = {
         headers: {
             'Content-Type': 'application/json',
             'x-auth-token': localStorage.token
         }
     };
-    const body = {}
+    const body = {
+        folderPath: `./routes/api/${folderPath}/report.xls`
+    }
     // const body = { folderPath }
     try {
         dispatch({
             type: LOADING_START
         })
-
-        const res = await axios.get(`/api/files/report`, { responseType: 'blob' }, config);
-
+        // const res = await axios.get(`/api/files/report`, body, { responseType: 'blob' }, config);
+        const res = await axios.post(`/api/files/report`, body, { responseType: 'blob' }, config);
         const data = window.URL.createObjectURL(res.data);
-
 
         const url = window.URL
             .createObjectURL(new Blob([res.data]));
@@ -316,6 +324,9 @@ export const downloadReport = (folderPath) => async dispatch => {
         //     type: DOWNLOAD_REPORT,
         //     payload: res.data.data
         // });
+
+        dispatch(setAlert('Report Downloaded', 'success'));
+        dispatch({ type: LOADING_END })
         return res.data;
     } catch (err) {
         console.log(err)
@@ -323,6 +334,27 @@ export const downloadReport = (folderPath) => async dispatch => {
 }
 
 //---helpers---
+
+// const checkForRelatedPassengers = (passengers, flightId) => {
+//     // let relatedPassengers = [];
+//     let relatedPassengers = passengers.map(passenger => {
+//         if (passenger.relatedTo.length > 0) return passenger
+
+//         // if (passenger.n === flightId) {
+//         //     relatedPassengers.push(passenger);
+//         // }
+//         let passengerNameArr = passenger.name.split(' ');
+//         for (let i = 0; i < passengers.length; i++) {
+
+//             if()
+//         }
+//         return []
+//     });
+//     return relatedPassengers;
+
+// }
+
+
 const setJsonToXml = async (json) => {
     return json2xml(json, {
         compact: true
@@ -403,4 +435,15 @@ const sendUserMail = async (user) => {
 
     const res = fetch('https://api.inwise.com:443/rest/v1/v1', body, config);
     return res.data;
+}
+
+
+export const formatDate = (fullDate) => {
+    if (fullDate) {
+        const date = fullDate.slice(0, 10)
+        const time = fullDate.slice(11, 16)
+        console.log('date: ', date)
+        const dateFormatted = [date.split('-').reverse().join('-'), time]
+        return dateFormatted
+    }
 }

@@ -5,7 +5,7 @@ import { getFlight } from '../../store/flight/flightAction';
 import { Navigate } from 'react-router-dom';
 import AddTrip from './AddTrip';
 import EditTrip from './EditTrip';
-import { getNameFromPdf } from '../../store/flight/flightAction';
+import { getNameFromPdf, downloadReport, setCurrentFlight, formatDate } from '../../store/flight/flightAction';
 import Loader from '../layout/Loader';
 const Flight = (props) => {
 
@@ -18,20 +18,23 @@ const Flight = (props) => {
     useEffect(() => {
 
         const onload = async () => {
-            let pdfResults = await dispatch(getNameFromPdf())
-            const currentFlight = await dispatch(getFlight(id))
+            // let pdfResults = await dispatch(getNameFromPdf())
+            // const currentFlight = await dispatch(getFlight(id))
 
-            const newStateObject = {
-                tripDate: currentFlight.tripDate,
-                tripNumber: currentFlight.tripNumber,
-                pdfFiles: currentFlight.pdfFiles,
-                filesNames: currentFlight.filesNames,
-                date: currentFlight.date,
-                msg: '',
-                error: '',
-                passengersObject: pdfResults.data,
-                reportName: pdfResults.pathToReport
-            }
+            // const newStateObject = {
+            //     tripDate: currentFlight.tripDate,
+            //     tripNumber: currentFlight.tripNumber,
+            //     pdfFiles: currentFlight.pdfFiles,
+            //     pdfName: currentFlight.pdfName,
+            //     date: currentFlight.date,
+            //     msg: '',
+            //     error: '',
+            //     // passengersObject: pdfResults,
+            //     // reportName: pdfResults
+            // }
+            const newStateObject = flightState.flights.find(fligt => fligt._id === id)
+
+            dispatch(setCurrentFlight(newStateObject));
             setTripState({
                 ...newStateObject
             })
@@ -42,9 +45,7 @@ const Flight = (props) => {
 
     useEffect(() => {
         if (flightState.date) {
-            const date = flightState.tripDate.slice(0, 10)
-            const time = flightState.tripDate.slice(11, 16)
-            const dateFormatted = [date, time]
+            const dateFormatted = formatDate(flightState.tripDate)
             setTripState({
                 ...flightState,
                 dateFormatted
@@ -52,19 +53,20 @@ const Flight = (props) => {
         }
         return () => { }
     }, [flightState])
+    // const dateFormatted = formatDate(flight.tripDate)
 
 
     const [tripState, setTripState] = useState({
         tripNumber: '',
         tripDate: '',
         pdfFiles: [],
-        filesNames: [],
+        pdfName: [],
         msg: '',
         error: '',
         date: '',
         dateFormatted: ''
     })
-    const { tripNumber, tripDate, filesNames, date, dateFormatted } = tripState
+    const { tripNumber, tripDate, pdfName, date, dateFormatted } = tripState
 
     if (!authState.isAuthenticated) {
         return <Navigate to='/login' />
@@ -93,11 +95,14 @@ const Flight = (props) => {
                             <p className="flight-info-text">{dateFormatted ? dateFormatted[1] : null}</p>
                         </div>
                     </div>
+                    <div className="singleFlight-buttons">
+                        <p className='btn btn-primary' onClick={() => dispatch(downloadReport(flightState.folderName))}>הורד/י דוח</p>
+                    </div>
                 </div>
                 {/* <div className="singleFlight-files">
                 <h2>רשימת קבצים</h2>
                 <div className="singleFlight-files-list">
-                    {filesNames.length > 0 ? filesNames.map((file, index) => {
+                    {pdfName.length > 0 ? pdfName.map((file, index) => {
                         return <div key={index} className="singleFlight-file">
                             <p>{file}</p>
                         </div>
@@ -105,7 +110,6 @@ const Flight = (props) => {
                 </div>
 
             </div> */}
-
                 {tripNumber ? <EditTrip currentTripState={tripState} setCurrentTripState={setTripState} /> : null}
             </div>
     )

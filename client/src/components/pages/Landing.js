@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom';
 import FlightCard from '../layout/FlightCard'
-import { getFlights, downloadReport } from '../../store/flight/flightAction'
+import { getFlights, downloadReport, formatDate } from '../../store/flight/flightAction'
 import Loader from '../layout/Loader';
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
@@ -34,7 +34,6 @@ const Landing = () => {
     const isFlights = flightState.flights ? flightState.flights.length > 0 ? true : false : null
 
     const onSearch = (e) => {
-
         const searchArr = flightState.flights.filter(flight => flight.tripNumber.includes(e.target.value.toUpperCase()))
         setTripState({
             ...tripState,
@@ -44,14 +43,14 @@ const Landing = () => {
     }
 
 
-    const formatDate = (date) => {
-        if (flightState.date) {
-            const date = flightState.tripDate.slice(0, 10)
-            const time = flightState.tripDate.slice(11, 16)
-            const dateFormatted = [date, time]
-            return dateFormatted
-        }
-    }
+    // const formatDate = (fullDate) => {
+    //     if (fullDate) {
+    //         const date = fullDate.slice(0, 10)
+    //         const time = fullDate.slice(11, 16)
+    //         const dateFormatted = [date.split('-').reverse().join('-'), time]
+    //         return dateFormatted
+    //     }
+    // }
 
     if (!authState.isAuthenticated) {
         return <Navigate to='/login' />

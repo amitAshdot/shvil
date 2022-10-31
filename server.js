@@ -38,5 +38,9 @@ app.get('/', (req, res) => { res.send('  API Running  ') });
 
 app.listen(PORT, () => { console.log(`server started on port ${PORT}`) });
 
+app.use(express.static(path.join(__dirname, 'build')));
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 // mainFunction('./pdfFiles')
 // mainFunction();

@@ -165,4 +165,36 @@ const sendMail = async (mailOptions, userData) => {
 // sendMail();
 
 
-module.exports = { mainFunction, sendMail };
+
+const checkForRelatedPassengers = (allPeopleObjectArr) => {
+    //check if there are related passengers
+    //if there are related passengers, add them to the same object
+    //if there are no related passengers, return the object as is
+    //return an array of objects
+
+    //EXAMPLE:
+    // allPeopleObjectArr = [
+    //     {name: "Levy Amit", isPaid: false, isTicketSent: false, ticketName: "file1.pdf"},
+    //     {name: "Levy Yotam", isPaid: false, isTicketSent: false, ticketName: "file2.pdf"},
+    //     {name: "Ashdot Amit", isPaid: false, isTicketSent: false, ticketName: "file3.pdf"},
+    //     {name: "Ashton Ayelet", isPaid: false, isTicketSent: false, ticketName: "file4.pdf"},
+    //  ]
+    let test = allPeopleObjectArr.map(person => {
+        let relatedPassengersArr = [];
+        let singleNameArr = person.name.split(" ");
+
+        for (let i = 0; i < allPeopleObjectArr.length; i++) {
+            const element = allPeopleObjectArr[i];
+            if (allPeopleObjectArr[i].includes(singleNameArr[0])) {
+                relatedPassengersArr.push(element);
+                // person.relatedPassengers = [{ name: "Levy Yotam", isPaid: false, isTicketSent: false, ticketName: "file2.pdf" }]
+            }
+        }
+        person.relatedTo = relatedPassengersArr;
+        return person;
+    });
+
+    return test;
+}
+
+module.exports = { mainFunction, sendMail, checkForRelatedPassengers };

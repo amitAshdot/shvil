@@ -9,6 +9,7 @@ import {
     ADD_FILES,
     GET_PDF_NAMES,
     LOADING_START,
+    LOADING_END,
     DONE_UPLOADING,
     START_UPLOADING
 } from './flightTypes';
@@ -114,6 +115,11 @@ export default function flightReducer(state = initialState, action) {
             return {
                 ...state,
                 loading: true
+            };
+        case LOADING_END:
+            return {
+                ...state,
+                loading: false
             };
 
         default:

@@ -42,3 +42,5 @@ routes/api/*
 !routes/api/flight.js
 !routes/api/tickets.js
 !routes/api/users.js
+
+scripts.js
