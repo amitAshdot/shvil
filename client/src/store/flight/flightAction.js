@@ -15,10 +15,7 @@ import {
 } from './flightTypes';
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
-
-import { xml2json, json2xml } from "xml-js";
-
-import allTripInfoMock from '../../mock/allTripInfoMock.js'
+// import { xml2json, json2xml } from "xml-js";
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
 export const setCurrentFlight = (flight) => async dispatch => {
@@ -99,6 +96,7 @@ export const addFlight = (currentState, formData) => async dispatch => {
         currentState.folderName = formData.get('folderName');
 
         //get names of pdf files
+        debugger
         const res = await axios.post('api/files/pdf-names', currentState, config);
         currentState.passengers = res.data.data;
         currentState.pathToReport = res.data.pathToReport;
@@ -178,16 +176,19 @@ export const editFlight = (currentState, formData) => async dispatch => {
             return;
         }
 
-        // const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
-        // await dispatch(uploadFiles(formData))
-
+        // FILES
         const filesPath = await dispatch(uploadFiles(formData))//upload files to server
         if (filesPath) {
             currentState.pdfName = [...filesPath.filesNames, ...resExist.pdfName];
             currentState.pdfFiles = [...filesPath.pdfFiles, ...resExist.pdfFiles];
         }
+
         resExist = { ...resExist, ...currentState };
 
+        //get names of pdf files
+        const resPdfNames = await axios.post('/api/files/pdf-names', resExist, config);
+        currentState.passengers = resPdfNames.data.data;
+        currentState.pathToReport = resPdfNames.data.pathToReport;
         // const res = await axios.post('/api/flight', currentState, config);
         const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
 
@@ -214,6 +215,7 @@ export const clearFlight = () => dispatch => {
 }
 
 export const uploadFiles = formData => async dispatch => {
+    debugger
     try {
         dispatch({
             type: LOADING_START
@@ -274,6 +276,7 @@ export const getNameFromPdf = (pdfFiles) => async dispatch => {
     };
     const body = { pdfFiles }
     try {
+
         dispatch({
             type: LOADING_START
         })
@@ -291,7 +294,6 @@ export const getNameFromPdf = (pdfFiles) => async dispatch => {
 }
 
 export const downloadReport = (folderPath) => async dispatch => {
-    // console.log('here!!!')
     const config = {
         headers: {
             'Content-Type': 'application/json',
@@ -301,29 +303,18 @@ export const downloadReport = (folderPath) => async dispatch => {
     const body = {
         folderPath: `./routes/api/${folderPath}/report.xls`
     }
-    // const body = { folderPath }
     try {
         dispatch({
             type: LOADING_START
         })
-        // const res = await axios.get(`/api/files/report`, body, { responseType: 'blob' }, config);
         const res = await axios.post(`/api/files/report`, body, { responseType: 'blob' }, config);
-        const data = window.URL.createObjectURL(res.data);
-
-        const url = window.URL
-            .createObjectURL(new Blob([res.data]));
+        const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `report.xls`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        // const blob = await res.blob();
-        // download(blob, "test.pdf");
-        // dispatch({
-        //     type: DOWNLOAD_REPORT,
-        //     payload: res.data.data
-        // });
 
         dispatch(setAlert('Report Downloaded', 'success'));
         dispatch({ type: LOADING_END })
@@ -336,113 +327,96 @@ export const downloadReport = (folderPath) => async dispatch => {
 //---helpers---
 
 // const checkForRelatedPassengers = (passengers, flightId) => {
-//     // let relatedPassengers = [];
-//     let relatedPassengers = passengers.map(passenger => {
-//         if (passenger.relatedTo.length > 0) return passenger
+// }
 
-//         // if (passenger.n === flightId) {
-//         //     relatedPassengers.push(passenger);
-//         // }
-//         let passengerNameArr = passenger.name.split(' ');
-//         for (let i = 0; i < passengers.length; i++) {
 
-//             if()
-//         }
-//         return []
+// const setJsonToXml = async (json) => {
+//     return json2xml(json, {
+//         compact: true
 //     });
-//     return relatedPassengers;
+// }
+// const setXmlToJson = async (xmlString) => {
+//     const xml = xml2json(xmlString, {
+//         compact: true
+//     });
+//     return JSON.parse(xml);
+// }
+
+// const getKavDataByTripNumber = async (tripNumber) => {
+//     const config = {
+//         headers: {
+//             'Content-Type': 'text/xml,charset=utf-8',
+//             'X-API-Key': '71b9632c5f53496faec51878a49c1bfd'
+//         }
+//     };
+//     const xlmBody = `<Root>
+// 	<Header>
+// 		<Protocol>CAV</Protocol>
+// 		<Version>1.00</Version>
+// 		<EtopsID>LLH-------</EtopsID>
+// 		<Password>-------</Password>
+// 		<UserId>-------</UserId>
+// 	</Header>
+// 	<Body>
+// 		<Command>PAX.DETAILS.REQ</Command>
+// 		<Id>${tripNumber}</Id>
+// 	</Body>
+// </Root>`
+
+//     // const body = {}
+
+//     const res = await fetch(`http://localhost:5000/api/flight/${tripNumber}`, xlmBody, config);
+
+//     return res.data;
+// }
+
+// // export const getFlights = () => async dispatch => {
+
+// const crossInformationBetweenKavAndUser = async (kavData, userFlightData) => {
+//     if (!kavData) return userFlightData;
+//     if (!userFlightData) return kavData;
+
+//     let kavDataCopy = JSON.parse(JSON.stringify(kavData));
+//     let userFlightDataCopy = JSON.parse(JSON.stringify(userFlightData));
+
 
 // }
 
 
-const setJsonToXml = async (json) => {
-    return json2xml(json, {
-        compact: true
-    });
-}
-const setXmlToJson = async (xmlString) => {
-    const xml = xml2json(xmlString, {
-        compact: true
-    });
-    return JSON.parse(xml);
-}
+// const sendUserMail = async (user) => {
+//     const { email, name, tripNumber } = user;
+//     const config = {
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-API-Key': '71b9632c5f53496faec51878a49c1bfd'
+//         }
+//     };
 
-const getKavDataByTripNumber = async (tripNumber) => {
-    const config = {
-        headers: {
-            'Content-Type': 'text/xml,charset=utf-8',
-            'X-API-Key': '71b9632c5f53496faec51878a49c1bfd'
-        }
-    };
-    const xlmBody = `<Root>
-	<Header>
-		<Protocol>CAV</Protocol>
-		<Version>1.00</Version>
-		<EtopsID>LLH-------</EtopsID>
-		<Password>-------</Password>
-		<UserId>-------</UserId>
-	</Header>
-	<Body>
-		<Command>PAX.DETAILS.REQ</Command>
-		<Id>${tripNumber}</Id>
-	</Body>
-</Root>`
+//     const body = `{
+//         "message": {
+//             "html": "Hello world",
+//             "subject": "My subject",
+//             "from_email": "SenderEmail@YourDomain.com",
+//             "from_name": "Your Company Name",
+//             "to": [
+//                 {
+//                     "email": "${email}",
+//                     "name": "${name}",
+//                     "type": "to"
+//                 }
+//             ]
+//         }
+//     }`
 
-    // const body = {}
-
-    const res = await fetch(`http://localhost:5000/api/flight/${tripNumber}`, xlmBody, config);
-
-    return res.data;
-}
-
-// export const getFlights = () => async dispatch => {
-
-const crossInformationBetweenKavAndUser = async (kavData, userFlightData) => {
-    if (!kavData) return userFlightData;
-    if (!userFlightData) return kavData;
-
-    let kavDataCopy = JSON.parse(JSON.stringify(kavData));
-    let userFlightDataCopy = JSON.parse(JSON.stringify(userFlightData));
-
-
-}
-
-
-const sendUserMail = async (user) => {
-    const { email, name, tripNumber } = user;
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': '71b9632c5f53496faec51878a49c1bfd'
-        }
-    };
-
-    const body = `{
-        "message": {
-            "html": "Hello world",
-            "subject": "My subject",
-            "from_email": "SenderEmail@YourDomain.com",
-            "from_name": "Your Company Name",
-            "to": [
-                {
-                    "email": "${email}",
-                    "name": "${name}",
-                    "type": "to"
-                }
-            ]
-        }
-    }`
-
-    const res = fetch('https://api.inwise.com:443/rest/v1/v1', body, config);
-    return res.data;
-}
+//     const res = fetch('https://api.inwise.com:443/rest/v1/v1', body, config);
+//     return res.data;
+// }
 
 
 export const formatDate = (fullDate) => {
     if (fullDate) {
         const date = fullDate.slice(0, 10)
         const time = fullDate.slice(11, 16)
-        console.log('date: ', date)
         const dateFormatted = [date.split('-').reverse().join('-'), time]
         return dateFormatted
     }

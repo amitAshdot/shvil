@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 const FlighCard = (props) => {
-  const { index, tripNumber, tripDate, _id, dateFormatted } = props
+  const { index, tripNumber, _id, dateFormatted } = props
 
   return (
     <div key={index} className="flight">

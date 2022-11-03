@@ -8,7 +8,7 @@ const uuid = require('uuid').v4;
 const mongoClient = require('mongodb').MongoClient;
 const path = require('path');
 var bodyParser = require("body-parser");
-const { mainFunction } = require('./utils');
+// const { mainFunction } = require('./utils');
 const fileUpload = require('express-fileupload');
 
 
@@ -25,6 +25,8 @@ app.use(fileUpload());
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(bodyParser.json()); // support json encoded bodies
+
+
 //Define Routes
 app.use('/api/users', require('./routes/api/users'));
 app.use('/api/auth', require('./routes/api/auth'));

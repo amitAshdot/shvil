@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom';
 import FlightCard from '../layout/FlightCard'
-import { getFlights, downloadReport, formatDate } from '../../store/flight/flightAction'
+import { getFlights, formatDate } from '../../store/flight/flightAction'
 import Loader from '../layout/Loader';
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
@@ -13,10 +13,7 @@ const Landing = () => {
 
     useEffect(() => {
         dispatch(getFlights())
-        // dispatch(downloadReport())
-        return () => {
-            // cleanup
-        }
+        return () => { }
     }, [dispatch])
     const [tripState, setTripState] = useState({
         tripNumber: '',
@@ -41,16 +38,6 @@ const Landing = () => {
             searchInput: e.target.value
         })
     }
-
-
-    // const formatDate = (fullDate) => {
-    //     if (fullDate) {
-    //         const date = fullDate.slice(0, 10)
-    //         const time = fullDate.slice(11, 16)
-    //         const dateFormatted = [date.split('-').reverse().join('-'), time]
-    //         return dateFormatted
-    //     }
-    // }
 
     if (!authState.isAuthenticated) {
         return <Navigate to='/login' />

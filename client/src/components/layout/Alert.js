@@ -1,6 +1,6 @@
 import React from 'react'
 // import { connect } from 'react-redux'
-import { setAlert, removeAlert } from '../../store/alert/alertAction';
+import { removeAlert } from '../../store/alert/alertAction';
 import { useSelector, useDispatch } from 'react-redux';
 const Alert = () => {
     const dispatch = useDispatch();

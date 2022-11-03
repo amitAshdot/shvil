@@ -107,7 +107,10 @@ router.post('/', async (req, res) => {
 router.post('/pdf-names', auth, async (req, res) => {
     try {
         const { folderName } = req.body;
+        console.log('req.body:::::::', req.body)
         let initPassengersArr = await mainFunction(`${__dirname}/${folderName}/pdf`);
+        console.log('initPassengersArr:::::::', initPassengersArr)
+
         const FILE_PATH = `${__dirname}/${folderName}`;
         createExcelFile(FILE_PATH, initPassengersArr, res);
         // res.download('file.xls'); // Set disposition and send it.
@@ -212,7 +215,7 @@ const mainFunction = async (FILE_PATH) => {
         });
 
         let allPeopleObjectArr = await Promise.all(allFilePromises);
-
+        console.log("allPeopleObjectArr:", allPeopleObjectArr)
         let test = await checkForRelatedPassengers(allPeopleObjectArr);
 
         return allPeopleObjectArr;

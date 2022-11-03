@@ -45,10 +45,11 @@ const EditTrip = (props) => {
     error: '',
     dateFormatted: ''
   })
-  const { tripNumber, tripDate, pdfName, pdfFiles, dateFormatted, folderName } = tripState
+  const { tripNumber, tripDate, pdfName, pdfFiles, folderName } = tripState
   //change input state
   const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
-  const filesToShow = flightState?.pdfName?.length > 0 ? flightState.pdfName.map((file, index) => {
+
+  const filesToShow = tripState?.pdfName?.length > 0 ? tripState.pdfName.map((file, index) => {
     return <li key={index} className="files-file">{file}</li>
   }) : null;
 
@@ -84,23 +85,14 @@ const EditTrip = (props) => {
   }
 
   const onDrop = (newPdfFiles) => {
-    Array.from(pdfFiles).forEach(file => {
-      console.log(file)
-      pdfName.push(file.name)
-    })
     let newPdfState = [...pdfFiles, ...newPdfFiles]
-    // const newPdfNames = [...pdfName, ...newPdfFiles.map(file => file.name)]
+    const newPdfNames = [...pdfName, ...newPdfFiles.map(file => file.name)]
 
-    newPdfState = newPdfState.reduce((accumulator, current) => {
-      if (!accumulator.some((item) => item.name === current.name))
-        accumulator.push(current);
-      return accumulator;
-    }, []);
-
-    const newpdfName = [...new Set(pdfName)];
+    debugger
+    newPdfState = [...new Set(newPdfState)];
     setTripState({
       ...tripState,
-      pdfName: newpdfName,
+      pdfName: newPdfNames,
       pdfFiles: newPdfState
     })
   }
@@ -123,19 +115,12 @@ const EditTrip = (props) => {
               <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
               <label htmlFor="email" className="label-name"> מספר טיול</label>
             </div>
-
-            {/* <div className="input-container">
-            <input onChange={onChange} className='input form__field' id="tripDate" name="tripDate" type="date" value={dateFormatted[0]} placeholder="תאריך טיול" />
-            <label htmlFor="email" className="label-name">תאריך טיול"</label>
-          </div> */}
-            {/* loop of pdf files upload */}
-
             <input type="submit" value="שליחה" className='btn btn-secondary' />
 
             <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
 
             <div className="files-status">
-              {filesToShow?.length > 0 ? <ul>{filesToShow}</ul> : null}
+              {filesToShow?.length > 0 ? <ul>{filesToShow.reverse()}</ul> : null}
             </div>
           </div>
           {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
@@ -152,7 +137,6 @@ const EditTrip = (props) => {
                     <p className='drag'>הוספ/י קבצים לפה</p>
                     <p className='or'>או</p>
                     <p className='click'>לחץ/י להעלאה</p>
-                    {/* <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" /> */}
                   </div>}
                 {isDragActive && !isDragReject && "אפשר לשחרר כאן"}
                 {isDragReject && "טעות בקובץ"}

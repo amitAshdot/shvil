@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFlight } from '../../store/flight/flightAction';
+// import { getFlight } from '../../store/flight/flightAction';
 import { Navigate } from 'react-router-dom';
-import AddTrip from './AddTrip';
+// import AddTrip from './AddTrip';
 import EditTrip from './EditTrip';
-import { getNameFromPdf, downloadReport, setCurrentFlight, formatDate } from '../../store/flight/flightAction';
+import { downloadReport, setCurrentFlight, formatDate } from '../../store/flight/flightAction';
 import Loader from '../layout/Loader';
-const Flight = (props) => {
+const Flight = () => {
 
     const dispatch = useDispatch();
     const flightState = useSelector(state => state.flight);
@@ -18,22 +18,7 @@ const Flight = (props) => {
     useEffect(() => {
 
         const onload = async () => {
-            // let pdfResults = await dispatch(getNameFromPdf())
-            // const currentFlight = await dispatch(getFlight(id))
-
-            // const newStateObject = {
-            //     tripDate: currentFlight.tripDate,
-            //     tripNumber: currentFlight.tripNumber,
-            //     pdfFiles: currentFlight.pdfFiles,
-            //     pdfName: currentFlight.pdfName,
-            //     date: currentFlight.date,
-            //     msg: '',
-            //     error: '',
-            //     // passengersObject: pdfResults,
-            //     // reportName: pdfResults
-            // }
             const newStateObject = flightState.flights.find(fligt => fligt._id === id)
-
             dispatch(setCurrentFlight(newStateObject));
             setTripState({
                 ...newStateObject
@@ -41,7 +26,7 @@ const Flight = (props) => {
         }
         onload()
         return () => { }
-    }, [dispatch, id])
+    }, [dispatch, id, flightState.flights])
 
     useEffect(() => {
         if (flightState.date) {
@@ -53,8 +38,6 @@ const Flight = (props) => {
         }
         return () => { }
     }, [flightState])
-    // const dateFormatted = formatDate(flight.tripDate)
-
 
     const [tripState, setTripState] = useState({
         tripNumber: '',
@@ -66,7 +49,7 @@ const Flight = (props) => {
         date: '',
         dateFormatted: ''
     })
-    const { tripNumber, tripDate, pdfName, date, dateFormatted } = tripState
+    const { tripNumber, dateFormatted } = tripState
 
     if (!authState.isAuthenticated) {
         return <Navigate to='/login' />
@@ -99,17 +82,6 @@ const Flight = (props) => {
                         <p className='btn btn-primary' onClick={() => dispatch(downloadReport(flightState.folderName))}>הורד/י דוח</p>
                     </div>
                 </div>
-                {/* <div className="singleFlight-files">
-                <h2>רשימת קבצים</h2>
-                <div className="singleFlight-files-list">
-                    {pdfName.length > 0 ? pdfName.map((file, index) => {
-                        return <div key={index} className="singleFlight-file">
-                            <p>{file}</p>
-                        </div>
-                    }) : <p>אין קבצים</p>}
-                </div>
-
-            </div> */}
                 {tripNumber ? <EditTrip currentTripState={tripState} setCurrentTripState={setTripState} /> : null}
             </div>
     )

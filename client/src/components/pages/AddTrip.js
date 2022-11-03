@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import folderImage from '../../assets/img/folder.webp'
+// import folderImage from '../../assets/img/folder.webp'
 // import Moment from 'react-moment';
 // import moment from "moment";
 import Dropzone from 'react-dropzone'
 import XInsideSolidCircle from '../icons/XInsideSolidCircle.js'
 import PlusInCircle from '../icons/PlusInCircle.js'
 import { useDispatch, useSelector } from 'react-redux'
-import { addFlight, uploadFiles, downloadReport } from '../../store/flight/flightAction'
+import { addFlight } from '../../store/flight/flightAction'
 // import PdfTest from '../layout/PdfTest'
-import moment from 'moment';
+// import moment from 'moment';
 import { Navigate } from 'react-router-dom';
 import UploadingAnimation from '../layout/UploadingAnimation'
 import Alert from '../layout/Alert'
@@ -17,7 +17,7 @@ const AddTrip = () => {
     const dispatch = useDispatch();
     const authState = useSelector(state => state.auth);
     const flightState = useSelector(state => state.flight);
-    const alertState = useSelector(state => state.alert);
+    // const alertState = useSelector(state => state.alert);
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
 
     useEffect(() => {
@@ -63,7 +63,7 @@ const AddTrip = () => {
         dateFormatted: '',
         uploadEnd: false
     })
-    const { tripNumber, tripDate, filesNames, pdfFiles, dateFormatted, folderName } = tripState
+    const { tripNumber, tripDate, filesNames, pdfFiles, folderName } = tripState
     //change input state
     const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
@@ -141,13 +141,6 @@ const AddTrip = () => {
                         <input onChange={onChange} className='input form__field' id="tripNumber" name="tripNumber" type="text" value={tripNumber} />
                         <label htmlFor="email" className="label-name"> מספר טיול</label>
                     </div>
-
-                    {/* <div className="input-container">
-                        <input onChange={onChange} className='input form__field' id="tripDate" name="tripDate" type="datetime-local" value={dateFormatted[0]} placeholder="תאריך טיול" />
-                        <label htmlFor="email" className="label-name">תאריך טיול"</label>
-                    </div> */}
-                    {/* loop of pdf files upload */}
-
                     <input type="submit" value="שליחה" className='btn btn-secondary' />
 
                     <div className="reset-files" onClick={handleReset}>נקה נתונים</div>
@@ -156,7 +149,6 @@ const AddTrip = () => {
                         {filesToShow.length > 0 ? <ul>{filesToShow}</ul> : null}
                     </div>
                 </div>
-                {/* <DropZone onDrop={handleFiles} accept="application/pdf" multiple /> */}
 
                 <Dropzone onDrop={onDrop} accept={{ 'application/pdf': ['.pdf'] }} multiple >
                     {({ getRootProps, getInputProps, isDragActive, isDragReject }) => (
@@ -170,7 +162,6 @@ const AddTrip = () => {
                                     <p className='drag'>הוספ/י קבצים לפה</p>
                                     <p className='or'>או</p>
                                     <p className='click'>לחץ/י להעלאה</p>
-                                    {/* <input onChange={handleFiles} type="file" name="file" id="file" className="inputfile" multiple="multiple" title="" /> */}
                                 </div>}
                             {isDragActive && !isDragReject && "אפשר לשחרר כאן"}
                             {isDragReject && "טעות בקובץ"}
