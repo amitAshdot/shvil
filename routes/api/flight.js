@@ -28,9 +28,6 @@ router.get('/me', auth, async (req, res) => {
 // @access  public
 router.get('/:id', async (req, res) => {
     const { tripNumber } = req.params;
-    console.log("req.params: ", tripNumber);
-    console.log("req.body: ", req.body);
-
     try {
         const flight = await Flight.findById(req.params.id);
         // let flight = await Flight.findOne({ tripNumber: tripNumber.toUpperCase() });
@@ -84,8 +81,7 @@ router.post('/',
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { tripNumber, pdfFiles, tripDate, passengers, filesNames } = req.body;
-
+        const { tripNumber, pdfFiles, tripDate, passengers, filesNames, pdfName, folderName } = req.body;
         // Build flight object
         const flightFields = {};
         flightFields.user = req.user.id;
@@ -93,8 +89,9 @@ router.post('/',
         if (tripNumber) flightFields.tripNumber = tripNumber;
         if (pdfFiles) { flightFields.pdfFiles = pdfFiles; }
         if (filesNames) flightFields.filesNames = filesNames;
+        if (pdfName) flightFields.pdfName = pdfName;
         if (tripDate) flightFields.tripDate = tripDate;
-
+        if (folderName) flightFields.folderName = folderName;
         try {
             let flight = new Flight(flightFields);
             await flight.save();
@@ -111,14 +108,17 @@ router.post('/',
 // @desc    Update flight
 // @access  Private
 router.put('/:id', auth, async (req, res) => {
-    const { pdfFiles, tripDate, passengers, filesNames, _id } = req.body;
+    const { pdfFiles, tripDate, passengers, filesNames, _id, tripNumber, pdfName, folderName } = req.body;
     // Build flight object
     const flightFields = {};
     flightFields.user = req.user.id;
     if (passengers) flightFields.passengers = passengers;
-    if (pdfFiles) flightFields.pdfFiles = pdfFiles;
+    if (tripNumber) flightFields.tripNumber = tripNumber;
+    if (pdfFiles) { flightFields.pdfFiles = pdfFiles; }
     if (filesNames) flightFields.filesNames = filesNames;
+    if (pdfName) flightFields.pdfName = pdfName;
     if (tripDate) flightFields.tripDate = tripDate;
+    if (folderName) flightFields.folderName = folderName;
 
     try {
         let flightByTripNumber = await Flight.findById(req.params.id);

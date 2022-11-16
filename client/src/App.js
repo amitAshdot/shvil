@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
 import './css/index.css';
 import Navbar from './components/layout/Navbar';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -24,27 +24,31 @@ const App = () => {
 
   useEffect(() => {
     store.dispatch(loadUser());
-
     return () => {
 
     }
   }, []);
 
-  return (<Provider store={store}>
-    <Router>
-      <>
-        <Navbar />
-        <Routes>
-          <Route exact path="/login" element={<Login />} />
-          <Route exact path="/landing" element={<Landing />} />
-          <Route exact path="/" element={<AddTrip />} />
-          <Route exact path="/flight/:id" element={<Flight />} />
-          <Route path="*" element={<NotFound404 />} />
-        </Routes>
-        {/* <Landing /> */}
-      </>
-    </Router>
-  </Provider>)
+  return (
+    // <Suspense fallback={<div>Loading...</div>}>
+
+    <Provider store={store}>
+      <Router >
+        <>
+          <Navbar />
+          <Routes>
+            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/landing" element={<Landing />} />
+            <Route exact path="/" element={<AddTrip />} />
+            <Route exact path="/flight/:id" element={<Flight />} />
+            <Route path="*" element={<NotFound404 />} />
+          </Routes>
+          {/* <Landing /> */}
+        </>
+      </Router>
+    </Provider>
+    // </Suspense>
+  )
 }
 
 export default App;

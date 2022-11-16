@@ -19,6 +19,26 @@
                 gap: 1rem;
                 width: 55%;
 
+                .files {
+                    &-status {
+                        max-height: 25%;
+                        overflow: auto;
+                        border: 2px solid $color-primary;
+                        border-radius: 10px;
+                        padding: 0 1rem;
+                        max-width: 70%;
+                        min-width: 70%;
+                        font-size: 1rem;
+
+                        &:empty {
+                            display: none;
+                        }
+                    }
+
+                    &-file {
+                        text-align: center;
+                    }
+                }
 
                 .reset-files {
                     font-size: 0.8rem;
@@ -31,10 +51,11 @@
                 flex-direction: column;
                 align-items: center;
                 gap: 1rem;
-                height: 80%;
+                height: 90%;
                 width: 40%;
                 // padding-top: 10%;
                 border: 1px dashed black;
+                border-radius: 10px;
 
                 .text {
                     display: flex;
@@ -47,6 +68,10 @@
             }
         }
     }
+}
 
-
+.lottie {
+    &-uploading {
+        width: 15rem;
+    }
 }

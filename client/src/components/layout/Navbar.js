@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import logo1 from '../../assets/img/logo1.webp'
 import logo2 from '../../assets/img/logo2.webp'
 

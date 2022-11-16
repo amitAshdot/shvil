@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
 import setAuthToken from '../../utils/setAuthToken';
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs';
 
 export const loadUser = () => async dispatch => {
     if (localStorage.token) {

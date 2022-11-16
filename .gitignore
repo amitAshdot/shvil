@@ -34,3 +34,13 @@ config/default.json
 client/build
 client/.eslintcache
 
+
+
+routes/api/*
+!routes/api/auth.js
+!routes/api/files.js
+!routes/api/flight.js
+!routes/api/tickets.js
+!routes/api/users.js
+
+scripts.js

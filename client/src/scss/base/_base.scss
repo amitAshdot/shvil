@@ -19,7 +19,6 @@
 html {
   position: relative;
   scroll-behavior: smooth;
-
   // font-size: 20px;
   // font-size: 0.1111vw;
   min-height: 0vw;
@@ -75,6 +74,7 @@ body {
   /* set the box size in all elements to border-box thanks to *{} */
   position: relative;
   box-sizing: border-box;
+  width: 100vw;
   max-width: 1920px;
   margin-inline: auto;
   display: flex;
@@ -82,11 +82,16 @@ body {
   // background-size: cover;
   // background-position: center center;
   // background-repeat: no-repeat;
+  background-color: $color-white;
 
   @include respond(tab-port) {
     // padding: 0;
     flex-direction: column;
   }
+}
+
+#root {
+  width: 100%;
 }
 
 ::selection {
