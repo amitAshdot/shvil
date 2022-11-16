@@ -15,7 +15,10 @@ import {
 } from './flightTypes';
 import axios from 'axios';
 import { setAlert } from '../alert/alertAction';
-// import { xml2json, json2xml } from "xml-js";
+import balanceAnswerMock from '../../mock/balanceAnswerMock.js'
+import XMLParser from 'react-xml-parser'
+import convert from 'xml-js'
+import { xml2json, json2xml } from "xml-js";
 window.Buffer = window.Buffer || require("buffer").Buffer;
 
 export const setCurrentFlight = (flight) => async dispatch => {
@@ -96,23 +99,30 @@ export const addFlight = (currentState, formData) => async dispatch => {
         currentState.folderName = formData.get('folderName');
 
         //get names of pdf files
-        debugger
-        const res = await axios.post('api/files/pdf-names', currentState, config);
+        const res = await axios.post('api/files/main', currentState, config);
         currentState.passengers = res.data.data;
-        currentState.pathToReport = res.data.pathToReport;
-
 
         //get related passengers 
         // const relatedPassengers = checkForRelatedPassengers(currentState.passengers);
 
         // KAV
         //*****const kavData = await getKavDataByTripNumber(currentState.tripNumber);
+        const kavData = await balanceAnswerMock;
+        let kavDataJson = await setXmlToJson(kavData)
+        kavDataJson = JSON.parse(kavDataJson) // or if you prefer this notation
 
-        //check related passengers
-        //****const tempListOfPassengers = crossInformationBetweenKavAndUser(kavData, currentState.passengers);
+        //cross information with Kav system
+        const tempListOfPassengers = await crossInformationBetweenKavAndUser(kavDataJson, currentState.passengers);
 
         //send mail to user
-        //****await sendUserMail(currentState);
+        let mailSent = await axios.post('api/mail', currentState, config);
+        currentState.mailSent = mailSent.data.msg
+        currentState.passengers = mailSent.data.data;
+
+        //get names of pdf files
+        const resnew = await axios.post('api/files/pdf-names', currentState, config);
+        currentState.passengers = resnew.data.data;
+        currentState.pathToReport = resnew.data.pathToReport;
 
         const addFlightRes = await axios.post('/api/flight', currentState, config);
 
@@ -126,14 +136,15 @@ export const addFlight = (currentState, formData) => async dispatch => {
             payload: addFlightRes.data
         });
         await dispatch(setAlert('Flight Created', 'success'));
-
         await dispatch({ type: DONE_UPLOADING, });
         await dispatch({ type: CLEAR_FLIGHT });
 
     } catch (err) {
-        const errors = err.response.msg;
+        console.log(err);
+        const errors = err.response;
         if (errors) {
-            errors.forEach(error => dispatch(setAlert(error, 'danger')));
+            // errors.forEach(error => dispatch(setAlert(error, 'danger')));
+            await dispatch(setAlert('Flight Not Created', 'danger'));
         }
         dispatch({
             type: FLIGHT_ERROR,
@@ -186,18 +197,66 @@ export const editFlight = (currentState, formData) => async dispatch => {
         resExist = { ...resExist, ...currentState };
 
         //get names of pdf files
-        const resPdfNames = await axios.post('/api/files/pdf-names', resExist, config);
-        currentState.passengers = resPdfNames.data.data;
-        currentState.pathToReport = resPdfNames.data.pathToReport;
-        // const res = await axios.post('/api/flight', currentState, config);
-        const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
+        // const resPdfNames = await axios.post('/api/files/pdf-names', resExist, config);
+        const resPdfNames = await axios.post('/api/files/main', resExist, config);
+        debugger
+        resPdfNames.data.data = resPdfNames.data.data.map(passenger => {
+            let test = resExist.passengers.find(p => p.name === passenger.name)
+            if (test) {
+                return test
+            }
+            else
+                return passenger
+            // return resExist.passengers.find(p => p.name === passenger.name) ?  resExist.passengers.find(p => p.name === passenger.name) : passenger
+        })
+        resExist.passengers = resPdfNames.data.data;
 
-        dispatch({
+        const kavData = await balanceAnswerMock;
+        let kavDataJson = await setXmlToJson(kavData)
+        kavDataJson = JSON.parse(kavDataJson) // or if you prefer this notation
+
+        //cross information with Kav system
+        const tempListOfPassengers = await crossInformationBetweenKavAndUser(kavDataJson, resExist.passengers);
+
+        //send mail to user
+        let mailSent = await axios.post('/api/mail', resExist, config);
+        resExist.mailSent = mailSent.data.msg
+        resExist.passengers = mailSent.data.data;
+        debugger
+        //get names of pdf files
+        const resnew = await axios.post('/api/files/pdf-names', resExist, config);
+        resExist.passengers = resnew.data.data;
+        resExist.pathToReport = resnew.data.pathToReport;
+
+        const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
+        // const addFlightRes = await axios.post('/api/flight', currentState, config);
+
+        if (filesPath.pdfFiles)
+            res.data.pdfFiles = filesPath.pdfFiles;
+
+        if (filesPath.filesNames)
+            res.data.pdfName = filesPath.filesNames;
+        await dispatch({
             type: EDIT_FLIGHT,
             payload: res.data
         });
+        await dispatch(setAlert('Flight Created', 'success'));
+        await dispatch({ type: DONE_UPLOADING, });
+        await dispatch({ type: CLEAR_FLIGHT });
 
-        dispatch(setAlert('Flight Created', 'success'));
+
+
+        // // currentState.passengers = [...resPdfNames.data.data, ...resExist.passengers];
+        // currentState.pathToReport = resPdfNames.data.pathToReport;
+        // // const res = await axios.post('/api/flight', currentState, config);
+        // const res = await axios.put(`/api/flight/${resExist._id}`, resExist, config);
+
+        // dispatch({
+        //     type: EDIT_FLIGHT,
+        //     payload: res.data
+        // });
+
+        // dispatch(setAlert('Flight Created', 'success'));
     } catch (err) {
         const errors = err.response.data.msg;
         if (errors) {
@@ -215,7 +274,6 @@ export const clearFlight = () => dispatch => {
 }
 
 export const uploadFiles = formData => async dispatch => {
-    debugger
     try {
         dispatch({
             type: LOADING_START
@@ -335,52 +393,69 @@ export const downloadReport = (folderPath) => async dispatch => {
 //         compact: true
 //     });
 // }
-// const setXmlToJson = async (xmlString) => {
-//     const xml = xml2json(xmlString, {
-//         compact: true
-//     });
-//     return JSON.parse(xml);
-// }
 
-// const getKavDataByTripNumber = async (tripNumber) => {
+const setXmlToJson = async (xml) => {
+    return xml2json(xml, {
+        compact: true
+    });
+}
+
+// const getKavDataByTripNumber = async (tripID) => {
+//     const userID = 400512;
+//     const Password = 400512;
+//     const apiKey = '71b9632c5f53496faec51878a49c1bfd'
 //     const config = {
 //         headers: {
 //             'Content-Type': 'text/xml,charset=utf-8',
-//             'X-API-Key': '71b9632c5f53496faec51878a49c1bfd'
+//             'X-API-Key': `${apiKey}`
 //         }
 //     };
-//     const xlmBody = `<Root>
-// 	<Header>
-// 		<Protocol>CAV</Protocol>
-// 		<Version>1.00</Version>
-// 		<EtopsID>LLH-------</EtopsID>
-// 		<Password>-------</Password>
-// 		<UserId>-------</UserId>
-// 	</Header>
-// 	<Body>
-// 		<Command>PAX.DETAILS.REQ</Command>
-// 		<Id>${tripNumber}</Id>
-// 	</Body>
-// </Root>`
+//     const xlmBody = `
+//         <Root>
+//             <Header>
+//                 <Protocol>CAV</Protocol>
+//                 <Version>1.00</Version>
+//                 <EtopsID>LLH400512</EtopsID>
+//                 <Password>${Password}</Password>
+//                 <UserId>${userID}</UserId>
+//             </Header>
+//             <Body>
+//                 <Command>PAX.TRLIST</Command>
+//                 <Tour ID="${tripID}"></Tour>
+//             </Body>
+//         </Root>`
 
 //     // const body = {}
 
-//     const res = await fetch(`http://localhost:5000/api/flight/${tripNumber}`, xlmBody, config);
+//     const res = await fetch(`http://localhost:5000/api/flight/${tripID}`, xlmBody, config);
 
 //     return res.data;
 // }
 
-// // export const getFlights = () => async dispatch => {
 
-// const crossInformationBetweenKavAndUser = async (kavData, userFlightData) => {
-//     if (!kavData) return userFlightData;
-//     if (!userFlightData) return kavData;
+const crossInformationBetweenKavAndUser = async (kavData, userFlightData) => {
+    if (!kavData) return userFlightData;
+    if (!userFlightData) return kavData;
+    debugger
+    let kavDataCopy = JSON.parse(JSON.stringify(kavData));
+    let userFlightDataCopy = JSON.parse(JSON.stringify(userFlightData));
 
-//     let kavDataCopy = JSON.parse(JSON.stringify(kavData));
-//     let userFlightDataCopy = JSON.parse(JSON.stringify(userFlightData));
+    for (let i = 0; i < userFlightData.length; i++) {
+        const element = userFlightData[i];
+        console.log('element::::', element)
+        let tt = kavDataCopy.Root.Body.DocketList.Docket.map(docket => {
+            if (element.name.toUpperCase().trim() == `${docket.Paxes.Pax.FirstName._text} ${docket.Paxes.Pax.LastName._text}`.toUpperCase().trim()) {
+                element['kavData'] = docket;
+                element['isPaid'] = docket.Balance.Currency.Difference > 0 ? false : true;
+                if (docket.Paxes.Pax.Email._text)
+                    element['email'] = docket.Paxes.Pax.Email._text
+            }
+            return element;
+        })
 
-
-// }
+    }
+    return userFlightData
+}
 
 
 // const sendUserMail = async (user) => {
@@ -421,3 +496,6 @@ export const formatDate = (fullDate) => {
         return dateFormatted
     }
 }
+
+
+

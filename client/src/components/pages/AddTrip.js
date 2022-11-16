@@ -18,13 +18,14 @@ const AddTrip = () => {
     const authState = useSelector(state => state.auth);
     const flightState = useSelector(state => state.flight);
     // const alertState = useSelector(state => state.alert);
-    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    // var tzoffset = (new Date()).getTimezoneOffset() - 7200000; //offset in milliseconds
+    var tzoffset = (new Date(0)).getTimezoneOffset() - 7200000; //offset in milliseconds
 
     useEffect(() => {
         if (flightState.doneUpload) {
             setTripState({
                 tripNumber: '',
-                tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
+                tripDate: '',
                 pdfFiles: [],
                 filesNames: [],
                 folderName: '',
@@ -54,7 +55,7 @@ const AddTrip = () => {
     }, [flightState.startUpload, tzoffset, dispatch])
     const [tripState, setTripState] = useState({
         tripNumber: '',
-        tripDate: (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1),
+        tripDate: '',
         pdfFiles: [],
         filesNames: [],
         folderName: '',
@@ -97,7 +98,7 @@ const AddTrip = () => {
             })
         }
         formData.append('filesNames', filesNames);
-        let currentTripState = { ...tripState }
+        let currentTripState = { ...tripState, tripDate: (new Date(Date.now() - tzoffset)).toISOString() }
         // dispatch(uploadFiles(formData))
         // do stuff - get passenger names from pdf files, get trip api from Kav system, save to db
         dispatch(addFlight(currentTripState, formData))

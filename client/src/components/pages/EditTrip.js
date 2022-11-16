@@ -34,7 +34,9 @@ const EditTrip = (props) => {
     }
   }, [props])
 
-  var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+  // var tzoffset = (new Date()).getTimezoneOffset() * 7200000; //offset in milliseconds
+  var tzoffset = (new Date(0)).getTimezoneOffset() - 7200000; //offset in milliseconds
+
   const [tripState, setTripState] = useState({
     tripNumber: '',
     tripDate: '',
@@ -46,12 +48,14 @@ const EditTrip = (props) => {
     dateFormatted: ''
   })
   const { tripNumber, tripDate, pdfName, pdfFiles, folderName } = tripState
-  //change input state
-  const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
   const filesToShow = tripState?.pdfName?.length > 0 ? tripState.pdfName.map((file, index) => {
     return <li key={index} className="files-file">{file}</li>
   }) : null;
+
+  //change input state
+
+  const onChange = e => { setTripState({ ...tripState, [e.target.name]: e.target.value }); }
 
   const handleReset = () => {
     setTripState({
@@ -78,6 +82,7 @@ const EditTrip = (props) => {
       })
     }
     formData.append('pdfName', pdfName);
+    debugger
     let currentTripState = {
       ...tripState, tripDate: (new Date(Date.now() - tzoffset)).toISOString()
     }
@@ -85,11 +90,10 @@ const EditTrip = (props) => {
   }
 
   const onDrop = (newPdfFiles) => {
-    let newPdfState = [...pdfFiles, ...newPdfFiles]
-    const newPdfNames = [...pdfName, ...newPdfFiles.map(file => file.name)]
 
-    debugger
-    newPdfState = [...new Set(newPdfState)];
+    const newPdfState = [...new Set([...pdfFiles, ...newPdfFiles])]; //   => remove duplication
+    const newPdfNames = [...new Set([...pdfName, ...newPdfFiles.map(file => file.name)])]
+
     setTripState({
       ...tripState,
       pdfName: newPdfNames,

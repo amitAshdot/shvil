@@ -33,6 +33,7 @@ app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/tickets', require('./routes/api/tickets'));
 app.use('/api/flight', require('./routes/api/flight'));
 app.use('/api/files', require('./routes/api/files'));
+app.use('/api/mail', require('./routes/api/mail'));
 
 const PORT = process.env.PORT || 5000;
 

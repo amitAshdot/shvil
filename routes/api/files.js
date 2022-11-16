@@ -106,13 +106,17 @@ router.post('/', async (req, res) => {
 // @access  Public
 router.post('/pdf-names', auth, async (req, res) => {
     try {
-        const { folderName } = req.body;
-        console.log('req.body:::::::', req.body)
-        let initPassengersArr = await mainFunction(`${__dirname}/${folderName}/pdf`);
-        console.log('initPassengersArr:::::::', initPassengersArr)
+        const { folderName, mailSent, passengers } = req.body;
+        let initPassengersArr
+
+        if (!folderName) {
+            return res.status(400).json({ msg: 'No folderName' });
+        }
+        initPassengersArr = !mailSent ? initPassengersArr = await mainFunction(`${__dirname}/${folderName}/pdf`) : passengers
 
         const FILE_PATH = `${__dirname}/${folderName}`;
         createExcelFile(FILE_PATH, initPassengersArr, res);
+
         // res.download('file.xls'); // Set disposition and send it.
         return res.status(200).json({ msg: 'the names from pdf are', data: initPassengersArr, pathToReport: FILE_PATH + '/file.xls' });
     }
@@ -137,7 +141,24 @@ router.post('/report', auth, async (req, res) => {
     }
 });
 
-
+// @route   POST api/files/report
+// @desc    get names from files
+// @access  Public
+router.post('/main', auth, async (req, res) => {
+    try {
+        const { folderName } = req.body;
+        let initPassengersArr
+        if (!folderName) {
+            return res.status(400).json({ msg: 'No folderName' });
+        }
+        initPassengersArr = await mainFunction(`${__dirname}/${folderName}/pdf`)
+        return res.status(200).json({ msg: 'the names from pdf are', data: initPassengersArr });
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
 
 // --- helpers ---
@@ -168,6 +189,8 @@ const mainFunction = async (FILE_PATH) => {
                         if (match != null) {
                             name = match[1];
                             name = name.replace(/([A-Z])/g, ' $1').trim();
+                            name = name.split('(');
+                            name = name[0].trim();
                             peopleObjectArr.push({ no: peopleObjectArr.length, name: name, isPaid: false, status: 0, ticketName: file, relatedTo: '' });
                             return { no: peopleObjectArr.length, name: name, isPaid: false, status: 0, ticketName: file, relatedTo: '' };
                         } else {
